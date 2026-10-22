@@ -1,0 +1,68 @@
+# Verification targets for the Edge driver repo.
+# No build chain: luacheck and stylua are installed via Homebrew.
+#   brew install luacheck stylua
+
+# Known warning count at the time this gate was set up. `make lint` fails if the
+# count goes UP, so new code cannot add problems, while the existing 352-warning
+# backlog does not keep the gate permanently red. Lower this number as you burn
+# the backlog down -- it should only ever move one direction.
+BASELINE := 352
+
+# Known fingerprint problems (4 byte-identical duplicate ids). Same ratchet rule.
+FP_BASELINE := 4
+
+.PHONY: check lint lint-report lint-summary lint-signal fingerprints fmt-check help
+
+help:
+	@echo "make lint          - the gate: fails if warnings exceed BASELINE ($(BASELINE)) or any error appears"
+	@echo "make lint-report   - full warning list"
+	@echo "make lint-summary  - warning counts grouped by code"
+	@echo "make lint-signal   - only the high-value classes (undefined globals, shadowing, dead branches)"
+	@echo "make fingerprints  - validate every fingerprints.yml against its profiles"
+	@echo "make check         - lint + fingerprints"
+	@echo "make fmt-check     - formatting drift for ONE file: make fmt-check FILE=path/to.lua"
+
+lint:
+	@out=$$(luacheck . --no-color --codes -q 2>&1); \
+	total=$$(printf '%s\n' "$$out" | sed -n 's/^Total: \([0-9]*\) warnings* \/ \([0-9]*\) errors*.*/\1 \2/p'); \
+	warns=$$(echo $$total | cut -d' ' -f1); errs=$$(echo $$total | cut -d' ' -f2); \
+	if [ -z "$$warns" ]; then printf '%s\n' "$$out"; echo "luacheck did not report a total; treating as failure"; exit 1; fi; \
+	if [ "$$errs" -gt 0 ]; then printf '%s\n' "$$out"; echo "FAIL: $$errs syntax error(s)"; exit 1; fi; \
+	if [ "$$warns" -gt "$(BASELINE)" ]; then \
+	  printf '%s\n' "$$out"; \
+	  echo "FAIL: $$warns warnings, baseline is $(BASELINE) -- this change added $$(($$warns - $(BASELINE)))"; exit 1; \
+	fi; \
+	if [ "$$warns" -lt "$(BASELINE)" ]; then \
+	  echo "PASS: $$warns warnings (baseline $(BASELINE)) -- backlog reduced by $$(($(BASELINE) - $$warns)); lower BASELINE in the Makefile to lock the gain in"; \
+	else \
+	  echo "PASS: $$warns warnings, at baseline $(BASELINE), 0 errors"; \
+	fi
+
+lint-report:
+	@luacheck . --codes
+
+lint-summary:
+	@luacheck . --no-color --codes -q 2>/dev/null \
+	  | grep -oE '\(W[0-9]+\)' | sort | uniq -c | sort -rn
+
+# W1xx undefined/global misuse, W4xx shadowing, W54x dead branches, W58x suspect logic.
+# These are the ones worth reading; W211/W311 are mostly harmless leftovers.
+lint-signal:
+	@luacheck . --no-color --codes -q 2>/dev/null \
+	  | grep -E '\(W(1[0-9]{2}|4[0-9]{2}|54[0-9]|58[0-9]|313)\)' || echo "none"
+
+# Deliberately single-file. See the warning in stylua.toml.
+fmt-check:
+	@test -n "$(FILE)" || { echo "usage: make fmt-check FILE=path/to/file.lua"; exit 2; }
+	@stylua --check "$(FILE)"
+
+# Fingerprint entries resolve by the profile's internal `name:` field.
+fingerprints:
+	@out=$$(python3 scripts/validate_fingerprints.py 2>&1); \
+	printf '%s\n' "$$out"; \
+	n=$$(printf '%s\n' "$$out" | sed -n 's/^\([0-9]*\) problem(s)$$/\1/p'); \
+	[ -z "$$n" ] && n=0; \
+	if [ "$$n" -gt "$(FP_BASELINE)" ]; then echo "FAIL: $$n problems, baseline is $(FP_BASELINE)"; exit 1; fi; \
+	echo "PASS: $$n problems, baseline $(FP_BASELINE)"
+
+check: lint fingerprints

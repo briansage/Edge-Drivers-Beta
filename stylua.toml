@@ -1,0 +1,20 @@
+# Formatting config for SmartThings Edge drivers.
+#
+# !! DO NOT RUN `stylua .` ACROSS THIS REPOSITORY !!
+#
+# This is a fork that tracks Mariano-Github/Edge-Drivers-Beta. A full-repo format
+# rewrites all 449 Lua files (verified), which would turn every subsequent
+# `git merge upstream/main` into a whole-file conflict and make your own changes
+# invisible in review.
+#
+# Use it on a single file you are already rewriting, and only then:
+#     stylua path/to/one/file.lua
+#
+# Settings below match the style already dominant in the repo, so targeted runs
+# stay close to the surrounding code.
+
+column_width = 120
+indent_type = "Spaces"
+indent_width = 2
+quote_style = "AutoPreferDouble"
+call_parentheses = "Always"
