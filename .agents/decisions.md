@@ -5,9 +5,19 @@ Why the current setup is the way it is. Reverse any of these deliberately.
 ## Lint gates ratchet against a baseline
 
 `make check` passes at or below `BASELINE` and `FP_BASELINE` rather than at zero.
-The repo carries 352 luacheck warnings and 4 duplicate fingerprint ids. A gate that
+The whole repo carried 352 luacheck warnings and 4 duplicate fingerprint ids when the
+gate was set up. A gate that
 starts red stays red and stops being read. The ratchet blocks new problems from
 day one and the baselines come down as the backlog does.
+
+A gate that cannot read its input fails. A validator crash, or a `DRIVERS` entry that
+does not exist, would otherwise report zero problems and pass.
+
+## The gates cover only the drivers being worked on
+
+`DRIVERS` in the Makefile lists them, and the baselines are measured over that list.
+Drivers outside it stay in the repo untouched. Deleting them would make every upstream
+change to a deleted driver a modify/delete conflict, and bury real changes in PR diffs.
 
 ## luacheck runs with `std = "lua53"` and filters two classes
 
@@ -17,6 +27,9 @@ codes are stylua's domain. Unused *arguments* are required by fixed Edge handler
 signatures `(driver, device, cmd)`; unused *locals* stay reported.
 
 Filtering took 5,847 warnings to 352.
+
+`cache = false`. luacheck keeps its cache in `~/Library/Caches/Luacheck`, which agent
+sandboxes do not allow writes to, so a cached run fails before checking anything.
 
 ## stylua runs one file at a time
 

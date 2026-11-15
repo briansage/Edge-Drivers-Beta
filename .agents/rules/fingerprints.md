@@ -12,7 +12,8 @@ from declared names throughout this repo:
 Resolve every `deviceProfileName` by reading the `name:` field of the profiles in the
 same driver directory. Matching is case-insensitive.
 
-All 1,900 fingerprint entries currently resolve. `make fingerprints` proves it.
+`make fingerprints` checks the drivers listed in `DRIVERS` in the Makefile. Every entry
+in them resolves to a profile.
 
 ## Adding a fingerprint
 

@@ -34,6 +34,14 @@ make fingerprints  # fingerprints.yml against profiles
 Both gates ratchet against a baseline in the Makefile. Lower `BASELINE` and
 `FP_BASELINE` whenever a count drops, to lock the gain in.
 
+The gates cover the drivers listed in `DRIVERS` in the Makefile. Before editing a
+driver not on that list, add it and re-measure both baselines with it included:
+
+```
+make lint DRIVERS="<list> <new-driver>"          # set BASELINE to the warning count it prints
+make fingerprints DRIVERS="<list> <new-driver>"  # set FP_BASELINE to the problem count
+```
+
 Driver tests under `src/test/` run in the SmartThings integration_test container.
 `make check` is the local gate.
 
@@ -59,7 +67,7 @@ double quotes.
 | Tool | Version | Purpose |
 |---|---|---|
 | `luacheck` | 1.2.0 | static analysis, wired to `make lint` |
-| `stylua` | 2.5.2 | single-file formatting |
+| `stylua` | 2.6.0 | single-file formatting |
 | `smartthings` | 2.1.2 | packaging, channels, hub install, logs |
 
 Installed via Homebrew. The SmartThings CLI comes from the official
@@ -98,6 +106,8 @@ Global `~/.gitignore` may ignore dotfiles. Stage each dotfile that belongs in ve
 control by its exact path: `git add -f .luacheckrc`. Once tracked, it stays tracked.
 
 ## Known and Accepted Open items — *edit this list as open items are addressed*
+
+These drivers are outside `DRIVERS`. Add a driver to the gate before fixing its item.
 
 - `eaton-5-scene-keypad/init.lua` calls `bit32.replace` and `bit32.extract`. Confirm the
   Edge runtime provides `bit32` via `logcat` against real hardware, then either add it to

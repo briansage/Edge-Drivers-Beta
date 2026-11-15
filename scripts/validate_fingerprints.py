@@ -13,6 +13,8 @@ That means a narrow hand parser rather than PyYAML. It reads exactly two shapes:
     fingerprints.yml   list items introduced by `- id:`, with sibling keys
 
 Anything it cannot confidently read is reported as a problem rather than skipped.
+
+Usage: validate_fingerprints.py [driver-dir ...]   (default: the whole repo)
 """
 
 import os
@@ -81,11 +83,19 @@ def fingerprint_entries(path):
     return entries
 
 
+def walk(tops):
+    """os.walk each top. A missing directory is an error, so a typo cannot pass."""
+    for top in tops:
+        if not os.path.isdir(top):
+            sys.exit(f"not a directory: {top}")
+        yield from os.walk(top)
+
+
 def main():
     problems = defaultdict(list)
     scanned = 0
 
-    for root, _dirs, files in os.walk("."):
+    for root, _dirs, files in walk(sys.argv[1:] or ["."]):
         if ".git" in root.split(os.sep):
             continue
         if "fingerprints.yml" not in files:

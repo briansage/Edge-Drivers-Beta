@@ -7,7 +7,7 @@
 -- undefined-global reports in this repo are genuine defects, not framework noise.
 
 std = "lua53"
-cache = true
+cache = false
 
 -- Formatting is stylua's job, not luacheck's. Leaving these on buries the ~160
 -- substantive findings under ~3,300 whitespace reports.
