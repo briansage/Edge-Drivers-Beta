@@ -66,11 +66,13 @@ double quotes.
 
 | Tool | Version | Purpose |
 |---|---|---|
+| `lua` | 5.3.6 | the Edge runtime's language version, for running driver tests |
 | `luacheck` | 1.2.0 | static analysis, wired to `make lint` |
 | `stylua` | 2.6.0 | single-file formatting |
-| `smartthings` | 2.1.2 | packaging, channels, hub install, logs |
+| `smartthings` | 3.0.1 | packaging, channels, hub install, logs |
 
-Installed via Homebrew. The SmartThings CLI comes from the official
+`lua` is pinned in `mise.toml`; run `mise install`. The rest are installed via
+Homebrew. The SmartThings CLI comes from the official
 `smartthingscommunity/smartthings` tap.
 
 ## SmartThings CLI
@@ -83,6 +85,17 @@ Use non-interactive flags. Every command needed for deployment accepts them:
 smartthings edge:channels:create --input channel.json
 smartthings edge:drivers:package <dir> --channel <id> --hub <id>
 ```
+
+Deploy with `make deploy DRIVER=<dir>`. It runs `make check`, accepts only drivers in
+`DRIVERS`, and reads `CHANNEL` and `HUB` from `.env` in the repo root:
+
+```
+CHANNEL=<channel id>
+HUB=<hub id>
+```
+
+`.env` stays out of git. If `make deploy` reports them unset, ask for the IDs rather
+than looking them up.
 
 `smartthings edge:drivers:logcat` streams from the hub and belongs in a real terminal.
 

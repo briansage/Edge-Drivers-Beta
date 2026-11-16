@@ -15,7 +15,11 @@ BASELINE := 30
 # Known fingerprint problems across DRIVERS (3 duplicate ids). Same ratchet rule.
 FP_BASELINE := 3
 
-.PHONY: check lint lint-report lint-summary lint-signal fingerprints fmt-check help
+# CHANNEL and HUB for `make deploy`, one KEY=value per line. Kept out of git: the IDs
+# belong to one SmartThings account, not to the fork.
+-include .env
+
+.PHONY: check lint lint-report lint-summary lint-signal fingerprints fmt-check deploy help
 
 help:
 	@echo "make lint          - the gate: fails if warnings exceed BASELINE ($(BASELINE)) or any error appears"
@@ -25,6 +29,7 @@ help:
 	@echo "make fingerprints  - validate each driver's fingerprints.yml against its profiles"
 	@echo "make check         - lint + fingerprints, over DRIVERS ($(DRIVERS))"
 	@echo "make fmt-check     - formatting drift for ONE file: make fmt-check FILE=path/to.lua"
+	@echo "make deploy        - check, then package DRIVER to CHANNEL and install on HUB: make deploy DRIVER=<dir>"
 
 lint:
 	@out=$$(luacheck $(DRIVERS) --no-color --codes -q 2>&1); \
@@ -74,3 +79,10 @@ fingerprints:
 	echo "PASS: $$n problems, baseline $(FP_BASELINE)"
 
 check: lint fingerprints
+
+# Only gated drivers ship, so nothing reaches the hub without passing `make check`.
+deploy: check
+	@test -n "$(DRIVER)" || { echo "usage: make deploy DRIVER=<dir>"; exit 2; }
+	@test -n "$(filter $(DRIVER),$(DRIVERS))" || { echo "$(DRIVER) is not in DRIVERS; add it to the gate first"; exit 2; }
+	@test -n "$(CHANNEL)" -a -n "$(HUB)" || { echo "set CHANNEL and HUB in .env"; exit 2; }
+	smartthings edge:drivers:package $(DRIVER) --channel $(CHANNEL) --hub $(HUB)
