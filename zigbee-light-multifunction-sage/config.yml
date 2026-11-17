@@ -1,0 +1,5 @@
+name: 'Zigbee Light Multifunction (Sage)'
+packageKey: 'Zigbee_Light_Multifunction_sage'
+description: 'Devices Supported: https://github.com/briansage/Edge-Drivers-Beta/blob/main/zigbee-light-multifunction-sage/fingerprints.yml'
+permissions:
+  zigbee: {}

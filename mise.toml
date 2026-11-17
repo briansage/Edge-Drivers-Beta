@@ -1,2 +1,5 @@
 [tools]
 lua = "5.3.6"
+
+[env]
+_.file = ".env"

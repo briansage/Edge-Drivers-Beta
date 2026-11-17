@@ -4,7 +4,7 @@
 
 # Drivers the gate covers: the ones being worked on, not the whole fork. Adding one
 # means re-measuring both baselines below with it included, in the same change.
-DRIVERS := zigbee-light-multifunction-v6
+DRIVERS := zigbee-light-multifunction-sage
 
 # Known warning count across DRIVERS. `make lint` fails if the count goes UP, so new
 # code cannot add problems, while the existing backlog does not keep the gate

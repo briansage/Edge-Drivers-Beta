@@ -1,3 +1,11 @@
+# Zigbee Light Multifunction (Sage)
+
+A fork of Mariano Colmenarejo's
+[Zigbee Light Multifunction Mc](https://github.com/Mariano-Github/Edge-Drivers-Beta/tree/main/zigbee-light-multifunction-v6),
+version 6. Supported devices are listed in [fingerprints.yml](fingerprints.yml).
+
+The release notes below are Mariano's, from the original driver.
+
 ## Added new to control all paired devices directly from the driver with custom groups. 
 
 - You can see how works all new mirror groups funtions in this smartthings community post:
