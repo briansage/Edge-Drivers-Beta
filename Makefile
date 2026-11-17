@@ -19,7 +19,7 @@ FP_BASELINE := 3
 # belong to one SmartThings account, not to the fork.
 -include .env
 
-.PHONY: check lint lint-report lint-summary lint-signal fingerprints fmt-check deploy help
+.PHONY: check lint lint-report lint-summary lint-signal fingerprints fmt-check test deploy help
 
 help:
 	@echo "make lint          - the gate: fails if warnings exceed BASELINE ($(BASELINE)) or any error appears"
@@ -29,6 +29,7 @@ help:
 	@echo "make fingerprints  - validate each driver's fingerprints.yml against its profiles"
 	@echo "make check         - lint + fingerprints, over DRIVERS ($(DRIVERS))"
 	@echo "make fmt-check     - formatting drift for ONE file: make fmt-check FILE=path/to.lua"
+	@echo "make test          - plain-Lua unit tests in each DRIVERS src/test/"
 	@echo "make deploy        - check, then package DRIVER to CHANNEL and install on HUB: make deploy DRIVER=<dir>"
 
 lint:
@@ -79,6 +80,16 @@ fingerprints:
 	echo "PASS: $$n problems, baseline $(FP_BASELINE)"
 
 check: lint fingerprints
+
+# Plain-Lua unit tests, run from each driver's src/ so require finds its modules.
+# Not part of check: other drivers' src/test/ files need the SmartThings lua_libs.
+test:
+	@for d in $(DRIVERS); do \
+	  for t in $$d/src/test/test_*.lua; do \
+	    [ -e "$$t" ] || continue; \
+	    echo "$$t"; (cd $$d/src && lua "$${t#$$d/src/}") || exit 1; \
+	  done; \
+	done
 
 # Only gated drivers ship, so nothing reaches the hub without passing `make check`.
 # The Settings screen's first line comes from a "version" preference titled
