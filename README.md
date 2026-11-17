@@ -1,23 +1,89 @@
-# EDGE DRIVERS BETA CREATED OR MODIFIED BY Mariano Colmenarejo
+# SmartThings Edge Drivers
+Forked from [work by Mariano Colmenarejo](https://github.com/Mariano-Github/Edge-Drivers-Beta) and modified by Brian Sage.
 
-# WARNING:The Lua code for the drivers in this repository They are updated from time to time and may temporarily not be up to date, just like the drivers shared on my channel.
+---
+**NOTICE: The drivers in this repository may not be up to date with the latest updates from Mariano Colmenarejo or SmartThings. Feel free to file an Issue or author a pull request to help update.**
+---
 
-# The packaged drivers, shared, and available on my Edge drivers Shared Channel, work perfectly with the smartthings hub last firmware and previous, although they no longer implement some non-essential features of firmware 56.x and 57.x.
+## Installation
 
-- Some Drivers created with default libraries smartthings edge and added fingerprint of devices
-- Some Drivers created with default libraries smartthings edge and added custom code funtions or custom profilesCancel changes
-- Some Drivers Modified from original smartthings driver with adding fingerprints or profiles of new devices
-- All Drivers tested with my devices or tested by others users
+Tested with a SmartThings Hub v3 running firmware 62.x. Your mileage may vary.
 
-# This is the link to my Edge drivers Shared Channel
+The drivers install from this repository onto your own hub through a driver channel you
+own, using the SmartThings CLI.
 
-https://api.smartthings.com/invitation-web/accept?id=6b68563b-1905-4654-8d2b-e677a2997424
+### 1. Install the tools
 
-This repository and the shared channel to download the drivers has grown much more than I would have imagined at the beginning of Edge Drivers.
+From the repo root, using [Homebrew](https://brew.sh/):
+```
+brew bundle
+```
 
-I feel very grateful for all the thanks received from users and many of you have asked me how to make a donation or gift to thank and help maintain the channel. 
-I didn't plan on doing it, but if someone voluntarily wants to do it this is my paypal link
+The `Brewfile` installs the SmartThings CLI, `luacheck`, `stylua` and `mise`. The
+checks also use the system `python3`. Without Homebrew, install the same tools
+another way.
 
-http://paypal.me/MarianoColmenarejo
+### 2. Sign in
+```
+smartthings devices
+```
+Opens a browser to sign in.
 
-Feel free to use or modify them to improve them
+### 3. Create a channel and enroll your hub
+
+Create the channel by copying `channel.example.json` to `channel.json` and filling in
+`name`, `description` and `termsOfServiceUrl`. Keep `"type": "DRIVER"`; the create fails
+without it:
+```
+cp channel.example.json channel.json
+smartthings edge:channels:create --input channel.json
+smartthings devices --type HUB
+smartthings edge:channels:enroll <hub id> --channel <channel id>
+```
+
+### 4. Set up `.env`
+
+```
+cp .env.example .env
+```
+
+Set `CHANNEL` to the channel ID and `HUB` to the hub ID. Don't ever commit `.env` to git.
+
+### 5. Install a driver
+
+```
+make deploy DRIVER=zigbee-light-multifunction-sage
+```
+
+This checks the driver, packages it, assigns it to your channel and installs it on your
+hub. It deploys only drivers listed in `DRIVERS` in the `Makefile`.
+
+### 6. Move your devices onto it
+
+Devices stay on their current driver until you switch them. In the SmartThings app, open
+the device, tap ⋮, then **Driver**. Or from the CLI:
+
+```
+smartthings edge:drivers:switch <device id>
+```
+
+## Getting Started
+
+These steps are for changing the drivers. Install first, as above.
+
+```
+mise install   # Lua 5.3.6, pinned in mise.toml; also loads .env into your shell
+make check     # lint and fingerprint gates for the drivers in DRIVERS
+make test      # plain-Lua unit tests
+```
+
+To watch a driver's logs, run this in a terminal and accept the hub's certificate the
+first time:
+
+```
+smartthings edge:drivers:logcat <driver id> --hub-address <hub ip>
+```
+
+`AGENTS.md` has the full conventions for AI agents working on this repo.
+
+Feel free to use, modify, improve, and share.

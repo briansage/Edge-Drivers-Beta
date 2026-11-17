@@ -1,0 +1,611 @@
+name: level-colortemp-2000-6500
+components:
+- id: main
+  capabilities:
+  - id: switch
+    version: 1
+  - id: switchLevel
+    version: 1
+  - id: legendabsolute60149.levelSteps
+    version: 1
+  - id: colorTemperature
+    version: 1
+    #config:
+      #values:
+        #- key: "colorTemperature.value"
+          #range: [ 2000, 6500 ]
+  - id: legendabsolute60149.colorTemperatureSteps
+    version: 1
+  - id: legendabsolute60149.randomOnOff1
+    version: 1
+  - id: legendabsolute60149.randomNextStep
+    version: 1
+  - id: legendabsolute60149.progressiveOn1
+    version: 1
+  - id: legendabsolute60149.progressiveOff1
+    version: 1
+  - id: legendabsolute60149.forcedOnLevel
+    version: 1
+  - id: legendabsolute60149.circadian
+    version: 1
+  - id: legendabsolute60149.effectsSetCommand
+    version: 1
+  - id: legendabsolute60149.mirrorGroupFunction
+    version: 1
+  - id: legendabsolute60149.getGroups
+    version: 1
+  - id: legendabsolute60149.signalMetrics
+    version: 1
+  - id: legendabsolute60149.driverVersion1
+    version: 1
+  - id: refresh
+    version: 1
+  - id: firmwareUpdate
+    version: 1
+  categories:
+  - name: Light
+preferences:
+  - name: "version"
+    title: "Unreleased build"
+    description: "https://github.com/briansage/Edge-Drivers-Beta"
+    required: false
+    preferenceType: string
+    definition:
+      stringType: text
+      minLength: 0
+      maxLength: 0
+      default: "" 
+  - name: "hdrBasics"
+    title: "━━━━━━ BASICS ━━━━━━━━━━━━━━━━━━"
+    description: "Reporting, clock, color range and power-loss behavior"
+    required: false
+    preferenceType: string
+    definition:
+      stringType: text
+      minLength: 0
+      maxLength: 0
+  - name: "onOffReports"
+    title: "Device On-Off Interval Report"
+    description: "IF YOUR DEVICE & NETWORK WORK FINE THEN DON'T TOUCH. Set Device Interval Report (300 to 1200 sec). Smartthings Default = 300. Longer intervals reduce zigbee network traffic and Hub work. If Offline states occur with high values, then reduce the interval. Restore default Value before Driver Change."
+    required: true
+    preferenceType: integer
+    definition:
+      minimum: 300
+      maximum: 1200
+      default:  300
+  - name: "utcOffset"
+    title: "UTC Offset (hours)"
+    description: "Hours from UTC to your standard time, e.g. -8 for US Pacific"
+    required: false
+    preferenceType: enumeration
+    definition:
+      options:
+        "m23": "-23"
+        "m22": "-22"
+        "m21": "-21"
+        "m20": "-20"
+        "m19": "-19"
+        "m18": "-18"
+        "m17": "-17"
+        "m16": "-16"
+        "m15": "-15"
+        "m14": "-14"
+        "m13": "-13"
+        "m12": "-12"
+        "m11": "-11"
+        "m10": "-10"
+        "m9": "-9"
+        "m8": "-8"
+        "m7": "-7"
+        "m6": "-6"
+        "m5": "-5"
+        "m4": "-4"
+        "m3": "-3"
+        "m2": "-2"
+        "m1": "-1"
+        "0": "0"
+        "p1": "+1"
+        "p2": "+2"
+        "p3": "+3"
+        "p4": "+4"
+        "p5": "+5"
+        "p6": "+6"
+        "p7": "+7"
+        "p8": "+8"
+        "p9": "+9"
+        "p10": "+10"
+        "p11": "+11"
+        "p12": "+12"
+        "p13": "+13"
+        "p14": "+14"
+        "p15": "+15"
+        "p16": "+16"
+        "p17": "+17"
+        "p18": "+18"
+        "p19": "+19"
+        "p20": "+20"
+        "p21": "+21"
+        "p22": "+22"
+        "p23": "+23"
+      default: "0"
+  - name: "usDaylightSaving"
+    title: "Auto-adjust for US daylight saving"
+    description: "Automatically adjust for daylight saving time (US): adds an hour from the second Sunday in March to the first Sunday in November. Leave off where clocks don't change, such as Arizona and Hawaii"
+    required: false
+    preferenceType: boolean
+    definition:
+      default: false
+  - name: "restoreState"
+    title: "ATTEMPT Restore State if Power Lost"
+    description: "WARNNING: COULD NOT WORK\n After the power supply is back on, the State can be restored to previous state or remain switched off (Default: Device restores previous state)"
+    required: false
+    preferenceType: enumeration
+    definition:
+      options:
+        "0": "Device remains switched Off"
+        "1": "Device remains switched On"
+        "255": "Device restores previous state"
+      default: "255"
+  - name: "hdrFades"
+    title: "━━━━━━ FADES ━━━━━━━━━━━━━━━━━━━"
+    description: "How long each change takes, in seconds. 0 = the bulb's own speed"
+    required: false
+    preferenceType: string
+    definition:
+      stringType: text
+      minLength: 0
+      maxLength: 0
+  - name: "onTransTime"
+    title: "Turn ON and OFF Transition Time(sec)"
+    description: "Select Transition Time to Turn ON to last Level or OFF (0 to 3600 sec, Default: 0). WARNING: If the device is not able to move at a variable rate, the Transition time field MAY be disregarded and not will work"
+    required: false
+    preferenceType: number
+    definition:
+      minimum: 0
+      maximum: 3600
+      default: 1
+  - name: "levelTransTime"
+    title: "Transition Time to New Level(sec)"
+    description: "Select Transition Time to Move New Level (0 to 3600 sec, Default: 0). WARNING: If the device is not able to move at a variable rate, the Transition time field MAY be disregarded and not will work"
+    required: false
+    preferenceType: number
+    definition:
+      minimum: 0
+      maximum: 3600
+      default: 1
+  - name: "tempTransTime"
+    title: "Transition Time New ColorTemp(sec)"
+    description: "Select Transition Time to Move New Color Temperature (0 to 3600 sec, Default: 0). WARNING: If the device is not able to move at a variable rate, the Transition time field MAY be disregarded and not will work"
+    required: false
+    preferenceType: number
+    definition:
+      minimum: 0
+      maximum: 3600
+      default: 1
+  - name: "hdrGradual"
+    title: "━━━━━━ GRADUAL ON/OFF ━━━━━━━━━━"
+    description: "Slow wake-up and wind-down over minutes"
+    required: false
+    preferenceType: string
+    definition:
+      stringType: text
+      minLength: 0
+      maxLength: 0
+  - name: "onTimeMax"
+    title: "Turn (ON) Time to End Level(min)"
+    description: "Select Time to reach the End Level with Progressive ON function: 6 sec to 45 min (0.1 min to 45 min, Default: 10)"
+    required: false
+    preferenceType: number
+    definition:
+      minimum: 0.1
+      maximum: 45
+      default: 10  
+  - name: "onLevelStart"
+    title: "Turn (ON) Start Level %"
+    description: "Select Start Level when Turn ON with Progressive On function. (1 to 100, Default: 1)"
+    required: false
+    preferenceType: integer
+    definition:
+      minimum: 1
+      maximum: 100
+      default: 1   
+  - name: "onLevelEnd"
+    title: "Turn (ON) End Level %"
+    description: "Select End Level when Turn ON with Progressive On function. (1 to 100, Default: 100)"
+    required: false
+    preferenceType: integer
+    definition:
+      minimum: 1
+      maximum: 100
+      default: 100   
+  - name: "offTimeMax"
+    title: "Turn (OFF) Time to End Level (min)"
+    description: "Select Time to reach the End Level with Progressive OFF function: 6 sec to 45 min (0.1 min to 45 min, Default: 10)"
+    required: false
+    preferenceType: number
+    definition:
+      minimum: 0.1
+      maximum: 45
+      default: 10
+  - name: "offLevelEnd"
+    title: "Turn (OFF) End Level %"
+    description: "Select End Level when Turn OFF with Progressive OFF function:(0 to 100, Default: 0)"
+    required: false
+    preferenceType: integer
+    definition:
+      minimum: 0
+      maximum: 100
+      default: 0 
+  - name: "ifPushSwitch"
+    title: "If Switch Pushed when Running:"
+    description: "Select Action if Switch Pushed when dimming is Running: (Default: Light Turn Off)"
+    required: false
+    preferenceType: enumeration
+    definition:
+      options:
+        "End" : "Go to End Level Selected"
+        "Stop": "Stop Dimming"
+        "Off" : "Light Turn Off "
+        "Change": "Invert Dimming Direction"
+      default: "Off"
+  - name: "progLevelColor"
+    title: "Progressive (Level-TempColor) Active"
+    description: "Select Progressive Level-TempColor Active (Default: No)"
+    required: false
+    preferenceType: enumeration
+    definition:
+      options:
+        "Yes" : "Yes"
+        "No"  : "No"
+      default: "No"
+  - name: "hdrRandom"
+    title: "━━━━━━ RANDOM ON/OFF ━━━━━━━━━━━"
+    description: "Turns the light on and off at random intervals, so the house looks occupied"
+    required: false
+    preferenceType: string
+    definition:
+      stringType: text
+      minLength: 0
+      maxLength: 0
+  - name: "randomMin"
+    title: "Random ON-OFF Minimum Time"
+    description: "Select Minimum Time for Random ON-OFF Interval: (0.5 min to 25 min, Default: 1)"
+    required: false
+    preferenceType: number
+    definition:
+      minimum: 0.5
+      maximum: 25
+      default: 1 
+  - name: "randomMax"
+    title: "Random ON-OFF Maximum Time"
+    description: "Select Maximum Time for Random ON-OFF Interval (0.5 min to 25 min, Default: 10)"
+    required: false
+    preferenceType: number
+    definition:
+      minimum: 0.5
+      maximum: 25
+      default: 10 
+  - name: "hdrCircadian"
+    title: "━━━━━━ CIRCADIAN & COLOR LIMITS ━━"
+    description: "Color follows the time of day. Min and max also limit color commands"
+    required: false
+    preferenceType: string
+    definition:
+      stringType: text
+      minLength: 0
+      maxLength: 0
+  - name: "circadianTimeStart"
+    title: "Local Time Circadian Period Start"
+    description: "Local Time for Circadian Period Start (4 h to 10 h). Default: 6h"
+    required: false
+    preferenceType: integer
+    definition:
+      minimum: 4
+      maximum: 10
+      default: 6
+  - name: "circadianTimeEnd"
+    title: "Local Time Circadian Period End"
+    description: "Local Time for Circadian Period End (14 h to 24 h). Default :18"
+    required: false
+    preferenceType: integer
+    definition:
+      minimum: 14
+      maximum: 24
+      default: 20
+  - name: "colorTempMinim"
+    title: "Color Temperature  Min value (k)"
+    description: "Select Maximum Color Temp Increment value (2000k to 6000k, Default: 2000)"
+    required: false
+    preferenceType: number
+    definition:
+      minimum: 2000
+      maximum: 6000
+      default: 2700
+  - name: "colorTempMaxim"
+    title: "ColorTemp Increment Max value (k)"
+    description: "Select Maximum Color Temp Increment value (3000k to 6500k, Default: 6500)"
+    required: false
+    preferenceType: number
+    definition:
+      minimum: 3000
+      maximum: 6500
+      default: 5500
+  - name: "limitColorTemp"
+    title: "Use ColorTemp Min and Max as limits"
+    description: "Use ColorTemp Min and Max values as limits for this device"
+    required: false
+    preferenceType: boolean
+    definition:
+      default: true
+  - name: "hdrDimming"
+    title: "━━━━━━ DIMMING ━━━━━━━━━━━━━━━━━"
+    description: "Lowest level and how external step commands behave"
+    required: false
+    preferenceType: string
+    definition:
+      stringType: text
+      minLength: 0
+      maxLength: 0
+  - name: "setLevelMin"
+    title: "Minimum Set Command Level %"
+    description: "Select Minimum Level for Set Command (0 to 99, Default: 0)"
+    required: false
+    preferenceType: integer
+    definition:
+      minimum: 0
+      maximum: 99
+      default: 0
+  - name: "levelExtStepsMode"
+    title: "External Level Steps Operation Mode"
+    description: "External Level Steps Operation Mode. (Default: Change in +/- value step). The received value is increased or decreased in one step or varied at the rate of the received value for each second, until receiving value = 0 or reaching 0% or 100%"
+    required: false
+    preferenceType: enumeration
+    definition:
+      options:
+        "Step": "Change in +/- value step"
+        "Continuos": "Change in +/- value rate level"
+      default: "Step"
+  - name: "hdrGroups"
+    title: "━━━━━━ GROUPS ━━━━━━━━━━━━━━━━━━"
+    description: "Mirror groups run on the hub. Zigbee groups let a bound switch control bulbs directly"
+    required: false
+    preferenceType: string
+    definition:
+      stringType: text
+      minLength: 0
+      maxLength: 0
+  - name: "groupChild"
+    title: "Create Device Mirror Group Control"
+    description: "Create Virtual Device for Control a Mirror Group created with devices paired with this driver:"
+    required: false
+    preferenceType: boolean
+    definition:
+      default: false
+  - name: "onOffGroup"
+    title: "Assign to one Mirror Group"
+    description: "Assign this Device to one Mirror Group. 0 = Not Group Assigned (defualt: 0)"
+    required: false
+    preferenceType: integer
+    definition:
+      minimum: 0
+      maximum: 10
+      default: 0
+  - name: "groupAdd"
+    title: "Add Device to Group Number"
+    description: "Insert Group number to Add this device. Value = 0, Get All Groups in History Events, (Default: 0)"
+    required: false
+    preferenceType: number
+    definition:
+      minimum: 0
+      maximum: 65535
+      default: 0 
+  - name: "groupRemove"
+    title: "Remove Device Group Number"
+    description: "Insert Group number to Remove from this device. Value = 0, all Groups Removed"
+    required: false
+    preferenceType: number
+    definition:
+      minimum: 0
+      maximum: 65535
+      default: 1
+  - name: "hdrDiagnostics"
+    title: "━━━━━━ EFFECTS & DIAGNOSTICS ━━━"
+    description: "Blink timing, signal metrics and debug logging"
+    required: false
+    preferenceType: string
+    definition:
+      stringType: text
+      minLength: 0
+      maxLength: 0
+  - name: "blinkTimer"
+    title: "Set Blink Time interval (sec)"
+    description: "Set Blink Time interval in sec (1 sec to 30 sec, Default: 3)"
+    required: false
+    preferenceType: number
+    definition:
+      minimum: 1
+      maximum: 30
+      default: 3
+  - name: "signalMetricsVisibles"
+    title: "Signal Metrics Visible in History"
+    description: "Signal Metrics Visible in App History, Default, (Signal Metrics No Visible)"
+    required: false
+    preferenceType: enumeration
+    definition:
+      options:
+        "Yes": "Signal Metrics Visible"
+        "No": "Signal Metrics No Visible"
+      default: "No"
+  - name: "logDebugPrint"
+    title: "Show Logs Debug Prints in CLI"
+    required: false
+    preferenceType: boolean
+    definition:
+      default: false
+metadata:
+  deviceType: Light
+  ocfDeviceType: oic.d.light
+  deviceTypeId: Light
+  #mnmn: SmartThingsCommunity
+  #vid: 4af01373-eac6-3c4b-8d56-d685ac09117a
+deviceConfig:
+  dashboard:
+    states:
+      - component: main
+        capability: switch
+        version: 1
+        group: main
+        composite: true
+      - component: main
+        capability: switchLevel
+        version: 1
+        group: main
+        values:
+          - label: " | {{level.value}} {{level.unit}}"
+        composite: true
+    actions:
+      - component: main
+        capability: switch
+        version: 1
+        group: main
+        composite: true
+    basicPlus: []
+  detailView:
+    - component: main
+      capability: switch
+      version: 1
+    - component: main
+      capability: switchLevel
+      version: 1
+    - component: main
+      capability: legendabsolute60149.levelSteps
+      version: 1
+    - component: main
+      capability: colorTemperature
+      version: 1
+      values:
+        - key: "colorTemperature.value"
+          range: [ 2000, 6500 ]
+    - component: main
+      capability: legendabsolute60149.colorTemperatureSteps
+      version: 1
+    - component: main
+      capability: legendabsolute60149.randomOnOff1
+      version: 1
+    - component: main
+      capability: legendabsolute60149.randomNextStep
+      version: 1
+    - component: main
+      capability: legendabsolute60149.progressiveOn1
+      version: 1
+    - component: main
+      capability: legendabsolute60149.progressiveOff1
+      version: 1
+    - component: main
+      capability: legendabsolute60149.forcedOnLevel
+      version: 1
+    - component: main
+      capability: legendabsolute60149.circadian
+      version: 1
+    - component: main
+      capability: legendabsolute60149.effectsSetCommand
+      version: 1
+    - component: main
+      capability: legendabsolute60149.mirrorGroupFunction
+      version: 1
+    - component: main
+      capability: legendabsolute60149.getGroups
+      version: 1
+    - component: main
+      capability: legendabsolute60149.signalMetrics
+      version: 1
+    - component: main
+      capability: refresh
+      version: 1
+  automation:
+    conditions:
+      - component: main
+        capability: switch
+        version: 1
+      - component: main
+        capability: switchLevel
+        version: 1
+      - component: main
+        capability: legendabsolute60149.levelSteps
+        version: 1
+      - component: main
+        capability: colorTemperature
+        version: 1
+        values:
+        - key: "colorTemperature.value"
+          range: [ 2000, 6500 ]
+      - component: main
+        capability: legendabsolute60149.colorTemperatureSteps
+        version: 1
+      - component: main
+        capability: legendabsolute60149.randomOnOff1
+        version: 1
+      - component: main
+        capability: legendabsolute60149.randomNextStep
+        version: 1
+      - component: main
+        capability: legendabsolute60149.progressiveOn1
+        version: 1
+      - component: main
+        capability: legendabsolute60149.progressiveOff1
+        version: 1
+      - component: main
+        capability: legendabsolute60149.forcedOnLevel
+        version: 1
+      - component: main
+        capability: legendabsolute60149.circadian
+        version: 1
+      - component: main
+        capability: legendabsolute60149.effectsSetCommand
+        version: 1
+      - component: main
+        capability: legendabsolute60149.mirrorGroupFunction
+        version: 1
+    actions:
+      - component: main
+        capability: switch
+        version: 1
+      - component: main
+        capability: switchLevel
+        version: 1
+      - component: main
+        capability: legendabsolute60149.levelSteps
+        version: 1
+      - component: main
+        capability: colorTemperature
+        version: 1
+        values:
+        - key: "setColorTemperature"
+          range: [ 2000, 6500 ]
+      - component: main
+        capability: legendabsolute60149.colorTemperatureSteps
+        version: 1
+      - component: main
+        capability: legendabsolute60149.randomOnOff1
+        version: 1
+      - component: main
+        capability: legendabsolute60149.randomNextStep
+        version: 1
+      - component: main
+        capability: legendabsolute60149.progressiveOn1
+        version: 1
+      - component: main
+        capability: legendabsolute60149.progressiveOff1
+        version: 1
+      - component: main
+        capability: legendabsolute60149.forcedOnLevel
+        version: 1
+      - component: main
+        capability: legendabsolute60149.circadian
+        version: 1
+      - component: main
+        capability: legendabsolute60149.effectsSetCommand
+        version: 1
+      - component: main
+        capability: legendabsolute60149.mirrorGroupFunction
+        version: 1
