@@ -6,7 +6,7 @@ Forked from [work by Mariano Colmenarejo](https://github.com/Mariano-Github/Edge
 
 ## Installation
 
-Tested with SmartThings hub v3 by Aeotec running firmware 56.x. Your mileage may vary.
+Tested with a SmartThings Hub v3 running firmware 62.x. Your mileage may vary.
 
 The drivers install from this repository onto your own hub through a driver channel you
 own, using the SmartThings CLI.
