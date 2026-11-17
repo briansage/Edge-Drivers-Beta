@@ -1,8 +1,9 @@
 # SmartThings Edge Drivers
 Forked from [work by Mariano Colmenarejo](https://github.com/Mariano-Github/Edge-Drivers-Beta) and modified by Brian Sage.
 
-### NOTICE
-**The drivers in this repository and on my channel may not be up to date with the latest updates from Mariano Colmenarejo or SmartThings. Feel free to file an Issue or author a pull request to help update.**
+---
+**NOTICE: The drivers in this repository may not be up to date with the latest updates from Mariano Colmenarejo or SmartThings. Feel free to file an Issue or author a pull request to help update.**
+---
 
 ## Installation
 
@@ -13,27 +14,24 @@ own, using the SmartThings CLI.
 
 ### 1. Install the tools
 
-From the repo root:
-
+From the repo root, using [Homebrew](https://brew.sh/):
 ```
 brew bundle
 ```
 
-The `Brewfile` installs the SmartThings CLI, `luacheck` (for the checks `make deploy`
-runs before packaging), `stylua` and `mise`. The checks also use the system `python3`.
-Without Homebrew, install the same tools another way.
+The `Brewfile` installs the SmartThings CLI, `luacheck`, `stylua` and `mise`. The
+checks also use the system `python3`. Without Homebrew, install the same tools
+another way.
 
 ### 2. Sign in
-
 ```
 smartthings devices
 ```
-
-The first command that needs your account opens a browser to sign in.
+Opens a browser to sign in.
 
 ### 3. Create a channel and enroll your hub
 
-Create the channel once. `channel.json` needs `name`, `description`, `termsOfServiceUrl`
+Create channel by creating `channel.json` with details for `name`, `description`, `termsOfServiceUrl`
 and `"type": "DRIVER"`:
 
 ```

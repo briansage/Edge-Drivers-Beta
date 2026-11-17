@@ -1,0 +1,6 @@
+{
+  "name": "My Edge Drivers",
+  "type": "DRIVER",
+  "description": "Edge drivers built from Edge-Drivers-Beta",
+  "termsOfServiceUrl": "https://github.com/<you>/Edge-Drivers-Beta"
+}
