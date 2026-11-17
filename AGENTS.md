@@ -87,7 +87,8 @@ smartthings edge:drivers:package <dir> --channel <id> --hub <id>
 ```
 
 Deploy with `make deploy DRIVER=<dir>`. It runs `make check`, accepts only drivers in
-`DRIVERS`, and reads `CHANNEL` and `HUB` from `.env` in the repo root:
+`DRIVERS`, and reads `CHANNEL` and `HUB` from `.env` in the repo root, copied from
+`.env.example`:
 
 ```
 CHANNEL=<channel id>

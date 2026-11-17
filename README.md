@@ -1,23 +1,70 @@
-# EDGE DRIVERS BETA CREATED OR MODIFIED BY Mariano Colmenarejo
+# SmartThings Edge Drivers
+Forked from [work by Mariano Colmenarejo](https://github.com/Mariano-Github/Edge-Drivers-Beta) and modified by Brian Sage.
 
-# WARNING:The Lua code for the drivers in this repository They are updated from time to time and may temporarily not be up to date, just like the drivers shared on my channel.
+### NOTICE
+**The drivers in this repository and on my channel may not be up to date with the latest updates from Mariano Colmenarejo or SmartThings. Feel free to file an Issue or author a pull request to help update.**
 
-# The packaged drivers, shared, and available on my Edge drivers Shared Channel, work perfectly with the smartthings hub last firmware and previous, although they no longer implement some non-essential features of firmware 56.x and 57.x.
+## Installation
 
-- Some Drivers created with default libraries smartthings edge and added fingerprint of devices
-- Some Drivers created with default libraries smartthings edge and added custom code funtions or custom profilesCancel changes
-- Some Drivers Modified from original smartthings driver with adding fingerprints or profiles of new devices
-- All Drivers tested with my devices or tested by others users
+Tested with SmartThings hub v3 by Aeotec running firmware 56.x. Your mileage may vary.
 
-# This is the link to my Edge drivers Shared Channel
+Add to your hub from this link:
+https://api.SmartThings.com/invitation-web/accept?id=6b68563b-1905-4654-8d2b-e677a2997424
 
-https://api.smartthings.com/invitation-web/accept?id=6b68563b-1905-4654-8d2b-e677a2997424
+## Getting Started
 
-This repository and the shared channel to download the drivers has grown much more than I would have imagined at the beginning of Edge Drivers.
+These steps are for building and deploying the drivers to your own hub. To only install
+them, use the invitation link above.
 
-I feel very grateful for all the thanks received from users and many of you have asked me how to make a donation or gift to thank and help maintain the channel. 
-I didn't plan on doing it, but if someone voluntarily wants to do it this is my paypal link
+### Tools
 
-http://paypal.me/MarianoColmenarejo
+```
+brew install luacheck stylua smartthingscommunity/smartthings/smartthings mise
+mise install    # Lua 5.3.6, pinned in mise.toml
+```
 
-Feel free to use or modify them to improve them
+The first `smartthings` command that needs your account opens a browser to sign in.
+
+### A channel and a hub
+
+Drivers reach a hub through a channel you own. Create one once, then enroll each hub in
+it:
+
+```
+smartthings edge:channels:create --input channel.json
+smartthings devices --type HUB
+smartthings edge:channels:enroll <hub id> --channel <channel id>
+```
+
+`channel.json` needs `name`, `description`, `termsOfServiceUrl` and `"type": "DRIVER"`.
+
+### Configure
+
+```
+cp .env.example .env
+```
+
+Fill in `CHANNEL` and `HUB`. `.env` stays out of git, and mise loads it into your shell
+inside the repo.
+
+### Work on a driver
+
+```
+make check     # lint and fingerprint gates for the drivers in DRIVERS
+make test      # plain-Lua unit tests
+make deploy DRIVER=zigbee-light-multifunction-sage
+```
+
+`make deploy` runs `make check` first, then packages the driver, assigns it to your
+channel and installs it on your hub.
+
+To watch a driver's logs, run this in a terminal and accept the hub's certificate the
+first time:
+
+```
+smartthings edge:drivers:logcat <driver id> --hub-address <hub ip>
+```
+
+`AGENTS.md` has the full conventions for working on this repo.
+
+Feel free to use, modify, improve, and share.
