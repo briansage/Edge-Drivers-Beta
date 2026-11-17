@@ -10,7 +10,7 @@ DRIVERS := zigbee-light-multifunction-sage
 # code cannot add problems, while the existing backlog does not keep the gate
 # permanently red. Lower this number as you burn the backlog down -- it should only
 # ever move one direction.
-BASELINE := 30
+BASELINE := 25
 
 # Known fingerprint problems across DRIVERS (3 duplicate ids). Same ratchet rule.
 FP_BASELINE := 3

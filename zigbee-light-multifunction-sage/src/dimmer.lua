@@ -10,6 +10,7 @@ local LAST_KELVIN_SET = "last_kelvin_set"
 
 local write = require "writeAttribute"
 local child_devices = require "child-devices"
+local circadian_color = require "circadian-color"
 
 local ColorControl = zcl_clusters.ColorControl
 local CURRENT_X = "current_x_value" -- y value from xyY color space
@@ -1503,260 +1504,49 @@ function driver_handler.circadian_Light_handler(driver, device, command)
   timers_Cancel(driver,device)  
 end
 
------------------------------------------------ 
+-----------------------------------------------
 ---------- Circadian rhythm Timer run-------------------
+-- Color only: brightness is left to switches, routines and the app.
+local function circadian_send_color(device)
+  local now = os.time() + device.preferences.localTimeOffset * 3600
+  local colorTemp = circadian_color.kelvin_at(
+    device.preferences.colorTempMinim,
+    device.preferences.colorTempMaxim,
+    device.preferences.circadianTimeStart or 6,
+    device.preferences.circadianTimeEnd or 18,
+    tonumber(os.date("%H", now)),
+    tonumber(os.date("%M", now)))
+  if device.preferences.logDebugPrint == true then
+    print("<<< Circadian colorTemp =", colorTemp)
+  end
+  device:set_field(LAST_KELVIN_SET .. "main", colorTemp)
+  device:send_to_component("main", zcl_clusters.ColorControl.server.commands.MoveToColorTemperature(device, utils.round(1000000 / colorTemp), device.preferences.tempTransTime * 10))
+  device.thread:call_with_delay(2, function(d)
+    device:send_to_component("main", zcl_clusters.ColorControl.attributes.ColorTemperatureMireds:read(device))
+  end, "setColorTemp delayed read")
+end
+
 function driver_handler.circadian_handler(self, device)
+  circadian_Running[device] = "running"
+  device:set_field("circadian_Running[device]", circadian_Running[device], {persist = false})
+  circadian_send_color(device)
 
-  if device.preferences.logDebugPrint == true then
-    print("<<<<<<<<<<<<<<< In Circadian timer On >>>>>>>>>>>>>>>>")
+  if device:get_field("timer_circadian") ~= nil then return end
+  local timer = device.thread:call_on_schedule(300, function ()
+    circadian_send_color(device)
+  end, "Circadian_timer")
+  device:set_field("timer_circadian", timer)
+end
+
+-- Ends circadian until the light next turns on; the circadian control stays Active.
+function driver_handler.circadian_end_session(driver, device)
+  local timer = device:get_field("timer_circadian")
+  if timer then
+    device.thread:cancel_timer(timer)
+    device:set_field("timer_circadian", nil)
   end
-
-  local colorTemp = device.preferences.colorTempMinim --2700
-  local colorTempHour = device.preferences.colorTempMinim --2700
-  local colorTempNextHour = device.preferences.colorTempMinim --2700
-  local newLevel = (device.preferences.circadLevelMin + device.preferences.circadLevelMax) / 2
-  local localHour= tonumber(os.date("%H",os.time() + (device.preferences.localTimeOffset * 3600)))
-  if localHour == 0 then localHour = 24 end
-  local localNextHour= tonumber(os.date("%H",os.time() + (device.preferences.localTimeOffset * 3600) + 3600))
-  if localNextHour == 0 then localNextHour = 24 end
-  local localMinutes= tonumber(os.date("%M",os.time() + device.preferences.localTimeOffset))
-  local hour_int = device.preferences.circadianTimeStart
-  if hour_int == nil then hour_int = 6 end
-  local hour_end = device.preferences.circadianTimeEnd
-  if hour_end == nil then hour_end = 18 end
-  if device.preferences.logDebugPrint == true then
-    print("localHour, localMinutes =", localHour, localMinutes)
-  end
-  if localHour >= hour_int and localHour < hour_end then
-    circadian_Running[device] = "running"
-    device:set_field("circadian_Running[device]", circadian_Running[device], {persist = false})
-    if device.preferences.logDebugPrint == true then
-      print("circadian_Running=", circadian_Running[device])
-    end
-
-    -- set initial color temperature
-    -- Sun angle run from 0º (sunrise) to 90º (noon) and 0º (sunset)
-    local circadian_med_period = (hour_end + hour_int) / 2  -- calculate the middle of time period
-    local sun_angle_hour= ((localHour - hour_int) / (circadian_med_period - hour_int)) -- calcualte sun angle for current Local Hour
-    if sun_angle_hour > 1 then -- 0 = sunrise, 1 = 100% of 90º sun angle, > 1 then sun angle pass noon of day and run from 90º to 0º
-      sun_angle_hour = (2 - sun_angle_hour) * 90
-    else
-      sun_angle_hour = sun_angle_hour * 90
-    end
-
-    local sun_angle_next_hour= ((localNextHour - hour_int) / (circadian_med_period - hour_int))
-    if sun_angle_next_hour > 1 then -- 0 = sunrise, 1 = 100% of 90º sun angle, > 1 then sun angle pass noon of day and run from 90º to 0º
-      sun_angle_next_hour = (2 - sun_angle_next_hour) * 90
-    else
-      sun_angle_next_hour = sun_angle_next_hour * 90
-    end
-
-    if device.preferences.logDebugPrint == true then
-      print("<< sun_angle_hour:",sun_angle_hour)
-      print("<< sun_angle_next_hour:",sun_angle_next_hour)
-    end
-   
-    -- initial color temperature
-    colorTempHour = device.preferences.colorTempMinim + ((device.preferences.colorTempMaxim - device.preferences.colorTempMinim) * math.sin(math.rad(sun_angle_hour)))
-    colorTempNextHour = device.preferences.colorTempMinim + ((device.preferences.colorTempMaxim - device.preferences.colorTempMinim) * math.sin(math.rad(sun_angle_next_hour)))
-    colorTemp =  math.floor(utils.round(colorTempHour + ((colorTempNextHour - colorTempHour) * localMinutes /60)))
-    if colorTemp < device.preferences.colorTempMinim then colorTemp = device.preferences.colorTempMinim end
-
-    --- new level calculation
-    newLevel = math.ceil(device.preferences.circadLevelMin + (((colorTemp - device.preferences.colorTempMinim) / (device.preferences.colorTempMaxim - device.preferences.colorTempMinim)) * (device.preferences.circadLevelMax - device.preferences.circadLevelMin)))
-    if newLevel > 100 then
-      newLevel = 100
-    elseif newLevel < 0 then
-      newLevel = 0
-    end
-    device:set_field("last_Level", newLevel, {persist = false})
-
-    if device.preferences.logDebugPrint == true then
-      print("TempHour", colorTempHour, "TempNextHour",colorTempNextHour)
-      print("colorTemp =", colorTemp)
-      print("New Level=", newLevel)
-    end
-
-    --send initial values
-    if device:get_manufacturer() == "IKEA of Sweden" then
-      device:send(zcl_clusters.Level.commands.MoveToLevelWithOnOff(device, math.floor(newLevel/100.0 * 254), 0x0))
-    else
-      local command1 = zcl_clusters.Level.commands.MoveToLevelWithOnOff(device,  math.floor(newLevel/100.0 * 254), 0xFFFF)
-      if device:get_manufacturer() == "TCPi" or device:get_manufacturer() == "DURAGREEN" or device:get_model() == "Classic A60 W clear - LIGHTIFY" then
-        command1.body.zcl_body.options_mask = nil
-        command1.body.zcl_body.options_override = nil
-      end
-      device:send(command1)
-      --device:send(zcl_clusters.Level.commands.MoveToLevelWithOnOff(device, math.floor(newLevel/100.0 * 254), 0xFFFF)) 
-    end
-    --print("colorTemp =", colorTemp)
-    device:set_field(LAST_KELVIN_SET .. "main", colorTemp)
-    local colorTemp_Mireds = utils.round(1000000 / colorTemp)
-    --print("colorTemp Mired", colorTemp_Mireds)
-    device:send_to_component("main", zcl_clusters.ColorControl.server.commands.MoveToColorTemperature(device, colorTemp_Mireds, 0x0000))
-    local color_temp_read = function(d)
-      device:send_to_component("main", zcl_clusters.ColorControl.attributes.ColorTemperatureMireds:read(device))
-    end
-
-    -- added to ZLL devices get turn on state
-    device.thread:call_with_delay(2, function(d)
-      --print("<<<< refresh Delay")
-        device:refresh()
-    end)
-    --device.thread:call_with_delay(2, color_temp_read, "setColorTemp delayed read")
-
-    
-    set_status_timer = device:get_field("timer_circadian")
-    if set_status_timer ~= nil then return end
-    ---- Set timer for circadian cycle
-    set_status_timer = device.thread:call_on_schedule(300, 
-    function ()
-      localHour= tonumber(os.date("%H",os.time() + (device.preferences.localTimeOffset * 3600)))
-      if localHour == 0 then localHour = 24 end
-      localNextHour= tonumber(os.date("%H",os.time() + (device.preferences.localTimeOffset * 3600) + 3600))
-      if localNextHour == 0 then localNextHour = 24 end
-      localMinutes= tonumber(os.date("%M",os.time() + device.preferences.localTimeOffset))
-
-      if localHour >= hour_int and localHour < hour_end then
-
-        --- New colorTemperature Calculation
-        --Sun angle run from 0º (sunrise) to 90º (noon) and 0º (sunset)
-        sun_angle_hour= ((localHour - hour_int) / (circadian_med_period - hour_int)) -- calcualte sun angle for current Local Hour
-        if sun_angle_hour > 1 then -- 0 = sunrise, 1 = 100% of 90º sun angle, > 1 then sun angle pass noon of day and run from 90º to 0º
-          sun_angle_hour = (2 - sun_angle_hour) * 90
-        else
-          sun_angle_hour = sun_angle_hour * 90
-        end
-
-        sun_angle_next_hour= ((localNextHour - hour_int) / (circadian_med_period - hour_int))
-        if sun_angle_next_hour > 1 then -- 0 = sunrise, 1 = 100% of 90º sun angle, > 1 then sun angle pass noon of day and run from 90º to 0º
-          sun_angle_next_hour = (2 - sun_angle_next_hour) * 90
-        else
-          sun_angle_next_hour = sun_angle_next_hour * 90
-        end
-
-        if device.preferences.logDebugPrint == true then
-          print("localHour, localMinutes =", localHour, localMinutes)
-          print("<< sun_angle_hour:",sun_angle_hour)
-          print("<< sun_angle_next_hour:",sun_angle_next_hour)
-        end
-
-        colorTempHour = device.preferences.colorTempMinim + ((device.preferences.colorTempMaxim - device.preferences.colorTempMinim) * math.sin(math.rad(sun_angle_hour)))
-        colorTempNextHour = device.preferences.colorTempMinim + ((device.preferences.colorTempMaxim - device.preferences.colorTempMinim) * math.sin(math.rad(sun_angle_next_hour)))
-        colorTemp =  math.floor(utils.round(colorTempHour + ((colorTempNextHour - colorTempHour) * localMinutes /60)))
-        if colorTemp < device.preferences.colorTempMinim then colorTemp = device.preferences.colorTempMinim end
-        --- new level calculation)
-        newLevel = math.ceil(device.preferences.circadLevelMin + (((colorTemp - device.preferences.colorTempMinim) / (device.preferences.colorTempMaxim - device.preferences.colorTempMinim)) * (device.preferences.circadLevelMax - device.preferences.circadLevelMin)))
-
-        if newLevel > 100 then
-          newLevel = 100
-        elseif newLevel < 0 then
-          newLevel = 0
-        end
-        
-        if device.preferences.logDebugPrint == true then
-          print("TempHour", colorTempHour, "TempNextHour",colorTempNextHour)
-          print("colorTemp =", colorTemp)
-          print("New Level=", newLevel)
-        end
-
-        device:set_field("last_Level", newLevel, {persist = false})
-
-        --send values
-        if device:get_manufacturer() == "IKEA of Sweden" then
-          device:send(zcl_clusters.Level.commands.MoveToLevelWithOnOff(device, math.floor(newLevel/100.0 * 254), 0x0))
-        else
-          local command1 = zcl_clusters.Level.commands.MoveToLevelWithOnOff(device,  math.floor(newLevel/100.0 * 254), 0xFFFF)
-          if device:get_manufacturer() == "TCPi" or device:get_manufacturer() == "DURAGREEN" or device:get_model() == "Classic A60 W clear - LIGHTIFY" then
-            command1.body.zcl_body.options_mask = nil
-            command1.body.zcl_body.options_override = nil
-          end
-          device:send(command1)
-          --device:send(zcl_clusters.Level.commands.MoveToLevelWithOnOff(device, math.floor(newLevel/100.0 * 254), 0xFFFF)) 
-        end
-
-        --print("colorTemp =", colorTemp)
-        device:set_field(LAST_KELVIN_SET .. "main", colorTemp)
-        colorTemp_Mireds = utils.round(1000000 / colorTemp)
-        --print("colorTemp Mired", colorTemp_Mireds)
-        device:send_to_component("main", zcl_clusters.ColorControl.server.commands.MoveToColorTemperature(device, colorTemp_Mireds, 0x0000))
-        color_temp_read = function(d)
-          device:send_to_component("main", zcl_clusters.Level.attributes.CurrentLevel:read(device))
-          device:send_to_component("main", zcl_clusters.ColorControl.attributes.ColorTemperatureMireds:read(device))
-        end
-        device.thread:call_with_delay(2, color_temp_read, "setColorTemp delayed read")
-      end
-    end,
-    "Circadian_timer")
-    device:set_field("timer_circadian", set_status_timer)
-  else
-    if device.preferences.logDebugPrint == true then
-      print("<<< Circadian time out of period >>>")
-    end
-    if device.preferences.circadianNightSetting == false then
-      --print("<<<<<<< circadianNightSetting (false)>>>>>>>>>",device.preferences.circadianNightSetting)
-      local on_Level = device:get_field("last_Level")
-      -- detect if forced Level actived
-      if device:get_field("forced_Level") > 0 then
-        --if on_Level >= device:get_field("forced_Level") then
-          on_Level = device:get_field("forced_Level")
-          device:set_field("last_Level", on_Level, {persist = false})
-        --end
-      end
-      if device.preferences.onTransTime == 0 then
-        --device:send(OnOff.server.commands.On(device))
-        local command1 = zcl_clusters.Level.commands.MoveToLevelWithOnOff(device,  math.floor(on_Level/100.0 * 254), 0xFFFF)
-        if device:get_manufacturer() == "TCPi" or device:get_manufacturer() == "DURAGREEN" or device:get_model() == "Classic A60 W clear - LIGHTIFY" then
-          command1.body.zcl_body.options_mask = nil
-          command1.body.zcl_body.options_override = nil
-        end
-        device:send(command1) 
-        --device:send(zcl_clusters.Level.commands.MoveToLevelWithOnOff(device, math.floor(on_Level/100.0 * 254), 0xFFFF))
-      else
-        --print("Turn On >>>>>>>>>>>>>>>>")
-        if on_Level == nil then on_Level = device.preferences.onLevelEnd end
-        local command1 = zcl_clusters.Level.commands.MoveToLevelWithOnOff(device,  math.floor(on_Level/100.0 * 254), device.preferences.onTransTime * 10)
-        if device:get_manufacturer() == "TCPi" or device:get_manufacturer() == "DURAGREEN" or device:get_model() == "Classic A60 W clear - LIGHTIFY" then
-          command1.body.zcl_body.options_mask = nil
-          command1.body.zcl_body.options_override = nil
-        end
-        device:send(command1)
-        --device:send(zcl_clusters.Level.commands.MoveToLevelWithOnOff(device, math.floor(on_Level/100.0 * 254), math.floor(device.preferences.onTransTime * 10)))
-      end
-      device:send(OnOff.server.commands.On(device))
-    else
-      --print("<<<<<<< circadianNightSetting (true)>>>>>>>>>",device.preferences.circadianNightSetting)
-      local on_Level = device.preferences.circadLevelMin
-      device:set_field("last_Level", on_Level, {persist = false})
-      if device:get_manufacturer() == "IKEA of Sweden" then
-        device:send(zcl_clusters.Level.commands.MoveToLevelWithOnOff(device, math.floor(on_Level/100.0 * 254), 0x0))
-      else
-        local command1 = zcl_clusters.Level.commands.MoveToLevelWithOnOff(device,  math.floor(on_Level/100.0 * 254), 0xFFFF)
-        if device:get_manufacturer() == "TCPi" or device:get_manufacturer() == "DURAGREEN" or device:get_model() == "Classic A60 W clear - LIGHTIFY" then
-          command1.body.zcl_body.options_mask = nil
-          command1.body.zcl_body.options_override = nil
-        end
-        device:send(command1) 
-        --device:send(zcl_clusters.Level.commands.MoveToLevelWithOnOff(device, math.floor(on_Level/100.0 * 254), 0xFFFF)) 
-      end
-
-      colorTemp = math.floor(device.preferences.colorTempMinim)
-      device:set_field(LAST_KELVIN_SET .. "main", colorTemp)
-      local colorTemp_Mireds = utils.round(1000000 / colorTemp)
-      device:send_to_component("main", zcl_clusters.ColorControl.server.commands.MoveToColorTemperature(device, colorTemp_Mireds, 0x0000))
-      device:send(OnOff.server.commands.On(device))
-      local color_temp_read = function(d)
-        device:send_to_component("main", zcl_clusters.ColorControl.attributes.ColorTemperatureMireds:read(device))
-      end
-      --device.thread:call_with_delay(2, color_temp_read, "setColorTemp delayed read")
-    end
-
-    -- added to ZLL devices get turn on state
-    device.thread:call_with_delay(2, function(d)
-      --print("<<<< refresh Delay")
-        device:refresh()
-      end)
-  end
+  circadian_Running[device] = "stopped"
+  device:set_field("circadian_Running[device]", circadian_Running[device], {persist = false})
 end
 
 -----------------------------------------------
