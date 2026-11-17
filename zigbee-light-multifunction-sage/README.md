@@ -4,6 +4,32 @@ A fork of Mariano Colmenarejo's
 [Zigbee Light Multifunction Mc](https://github.com/Mariano-Github/Edge-Drivers-Beta/tree/main/zigbee-light-multifunction-v6),
 version 6. Supported devices are listed in [fingerprints.yml](fingerprints.yml).
 
+## Sage changes
+
+### 2026-11-17
+
+- **Circadian changes color only.** It no longer touches brightness. It starts when the
+  light turns on, including from a switch bound to the bulb's Zigbee group, and follows the
+  time of day every 5 minutes. It ends when the light turns off or when you set a color,
+  until the next turn-on. Outside the circadian hours the light holds the warmest color.
+- **Circadian brightness settings removed.** Circadian MIN/MAX Level and the night setting
+  no longer did anything.
+- **New defaults.** Color temperature 2700–5500K (or the bulb's ceiling), used as limits on
+  color commands. Circadian period 6:00–20:00. Transition times 1 second; 0 means the
+  bulb's own speed.
+- **Local time.** "Local Time Offset" is replaced by **UTC Offset (hours)**, −23 to +23,
+  and **Auto-adjust for US daylight saving**. The hub clock runs on UTC, so set the offset
+  to your standard time (−8 for US Pacific) and turn daylight saving on where clocks
+  change. Arizona and Hawaii leave it off.
+- **Settings screen.** Settings are grouped under headings, and the first line shows the
+  build date and commit.
+
+### Switching a bulb from Mariano's driver
+
+- Settings you saved under his driver keep their values, so new defaults don't apply to
+  them. Check the fade times and color limits after switching.
+- The old time offset doesn't carry over. Set UTC Offset again.
+
 The release notes below are Mariano's, from the original driver.
 
 ## Added new to control all paired devices directly from the driver with custom groups. 
