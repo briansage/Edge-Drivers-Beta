@@ -71,8 +71,8 @@ double quotes.
 | `stylua` | 2.6.0 | single-file formatting |
 | `smartthings` | 3.0.1 | packaging, channels, hub install, logs |
 
-`lua` is pinned in `mise.toml`; run `mise install`. The rest are installed via
-Homebrew. The SmartThings CLI comes from the official
+`lua` is pinned in `mise.toml`; run `mise install`. The rest are in the `Brewfile`;
+run `brew bundle`. The SmartThings CLI comes from the official
 `smartthingscommunity/smartthings` tap.
 
 ## SmartThings CLI

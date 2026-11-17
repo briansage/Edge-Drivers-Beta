@@ -8,27 +8,33 @@ Forked from [work by Mariano Colmenarejo](https://github.com/Mariano-Github/Edge
 
 Tested with SmartThings hub v3 by Aeotec running firmware 56.x. Your mileage may vary.
 
-Add to your hub from this link:
-https://api.SmartThings.com/invitation-web/accept?id=6b68563b-1905-4654-8d2b-e677a2997424
+The drivers install from this repository onto your own hub through a driver channel you
+own, using the SmartThings CLI.
 
-## Getting Started
+### 1. Install the tools
 
-These steps are for building and deploying the drivers to your own hub. To only install
-them, use the invitation link above.
-
-### Tools
+From the repo root:
 
 ```
-brew install luacheck stylua smartthingscommunity/smartthings/smartthings mise
-mise install    # Lua 5.3.6, pinned in mise.toml
+brew bundle
 ```
 
-The first `smartthings` command that needs your account opens a browser to sign in.
+The `Brewfile` installs the SmartThings CLI, `luacheck` (for the checks `make deploy`
+runs before packaging), `stylua` and `mise`. The checks also use the system `python3`.
+Without Homebrew, install the same tools another way.
 
-### A channel and a hub
+### 2. Sign in
 
-Drivers reach a hub through a channel you own. Create one once, then enroll each hub in
-it:
+```
+smartthings devices
+```
+
+The first command that needs your account opens a browser to sign in.
+
+### 3. Create a channel and enroll your hub
+
+Create the channel once. `channel.json` needs `name`, `description`, `termsOfServiceUrl`
+and `"type": "DRIVER"`:
 
 ```
 smartthings edge:channels:create --input channel.json
@@ -36,27 +42,41 @@ smartthings devices --type HUB
 smartthings edge:channels:enroll <hub id> --channel <channel id>
 ```
 
-`channel.json` needs `name`, `description`, `termsOfServiceUrl` and `"type": "DRIVER"`.
-
-### Configure
+### 4. Set up `.env`
 
 ```
 cp .env.example .env
 ```
 
-Fill in `CHANNEL` and `HUB`. `.env` stays out of git, and mise loads it into your shell
-inside the repo.
+Set `CHANNEL` to the channel ID and `HUB` to the hub ID. `.env` stays out of git.
 
-### Work on a driver
+### 5. Install a driver
 
 ```
-make check     # lint and fingerprint gates for the drivers in DRIVERS
-make test      # plain-Lua unit tests
 make deploy DRIVER=zigbee-light-multifunction-sage
 ```
 
-`make deploy` runs `make check` first, then packages the driver, assigns it to your
-channel and installs it on your hub.
+This checks the driver, packages it, assigns it to your channel and installs it on your
+hub. It deploys only drivers listed in `DRIVERS` in the `Makefile`.
+
+### 6. Move your devices onto it
+
+Devices stay on their current driver until you switch them. In the SmartThings app, open
+the device, tap ⋮, then **Driver**. Or from the CLI:
+
+```
+smartthings edge:drivers:switch <device id>
+```
+
+## Getting Started
+
+These steps are for changing the drivers. Install first, as above.
+
+```
+mise install   # Lua 5.3.6, pinned in mise.toml; also loads .env into your shell
+make check     # lint and fingerprint gates for the drivers in DRIVERS
+make test      # plain-Lua unit tests
+```
 
 To watch a driver's logs, run this in a terminal and accept the hub's certificate the
 first time:
