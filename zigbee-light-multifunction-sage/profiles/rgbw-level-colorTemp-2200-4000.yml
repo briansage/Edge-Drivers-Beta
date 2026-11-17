@@ -265,7 +265,7 @@ preferences:
       default: 10
   - name: "hdrCircadian"
     title: "━━━━━━ CIRCADIAN & COLOR LIMITS ━━"
-    description: "Follow the time of day, and clamp color temperature"
+    description: "Color follows the time of day. Min and max also limit color commands"
     required: false
     preferenceType: string
     definition:
@@ -289,7 +289,7 @@ preferences:
     definition:
       minimum: 14
       maximum: 24
-      default: 18
+      default: 20
   - name: "colorTempMinim"
     title: "Color Temperature  Min value (k)"
     description: "Select Maximum Color Temp Increment value (2200k to 3800k, Default: 2200)"
@@ -298,7 +298,7 @@ preferences:
     definition:
       minimum: 2200
       maximum: 3800
-      default: 2200
+      default: 2700
   - name: "colorTempMaxim"
     title: "ColorTemp Increment Max value (k)"
     description: "Select Maximum Color Temp Increment value (2700k to 4000k, Default: 4000)"
@@ -307,35 +307,10 @@ preferences:
     definition:
       minimum: 2700
       maximum: 4000
-      default: 4000 
+      default: 4000
   - name: "limitColorTemp"
     title: "Use ColorTemp Min and Max as limits"
     description: "Use ColorTemp Min and Max values as limits for this device"
-    required: false
-    preferenceType: boolean
-    definition:
-      default: false
-  - name: "circadLevelMin"
-    title: "Circadian Lighting MIN Level %"
-    description: "Select Minimum Level for Circadian Lighting function: (1 to 100, Default: 50)"
-    required: false
-    preferenceType: integer
-    definition:
-      minimum: 1
-      maximum: 100
-      default: 50   
-  - name: "circadLevelMax"
-    title: "Circadian Lighting MAX Level %"
-    description: "Select Maximum Level for Circadian Lighting function: (1 to 100, Default: 100)"
-    required: false
-    preferenceType: integer
-    definition:
-      minimum: 1
-      maximum: 100
-      default: 100
-  - name: "circadianNightSetting"
-    title: "Use Circadian Night Minimum Settings"
-    description: "Use Circadian settings of minimum Color Temperature and Level as default Night Minimum Settings"
     required: false
     preferenceType: boolean
     definition:
