@@ -107,6 +107,7 @@ end
 
 ---color_Temperature_handler
 local function set_color_Temperature_handler(self,device,command)
+  dimmer.circadian_end_session(self, device)
   if device.preferences.logDebugPrint == true then
     print("handler_Color Temp >>>>>>>>>>>>>>",command.args.temperature)
   end

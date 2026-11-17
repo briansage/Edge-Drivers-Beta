@@ -37,6 +37,7 @@ is Active.
 - `colorTempMaxim` defaults to 5500, or to the profile's maximum where that is lower
   (4000 in the two 2200–4000 profiles, 5000 in `level-colorTemp-2700-5000`).
 - `limitColorTemp` defaults to true, so color commands are clamped to the min/max.
+- `circadianTimeStart` stays 6 and `circadianTimeEnd` defaults to 20 (was 18).
 
 ## Local time
 

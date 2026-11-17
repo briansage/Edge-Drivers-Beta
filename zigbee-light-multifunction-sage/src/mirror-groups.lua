@@ -95,6 +95,7 @@ end
 
 -------- color_control_handler sat and hue --------------
 function mirror_groups.color_control_handler(self,device,command)
+  dimmer.circadian_end_session(self, device)
   if device.preferences.logDebugPrint == true then
     print("<<<<<<< color_control_handler >>>>>>")
   end
@@ -180,6 +181,7 @@ end
 --end
 
 function mirror_groups.set_color_handler(driver, device, cmd)
+  dimmer.circadian_end_session(driver, device)
   if device.preferences.logDebugPrint == true then
     print("<<<< set_color_handler XY >>>>")
   end

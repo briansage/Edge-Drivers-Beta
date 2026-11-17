@@ -17,7 +17,7 @@
 - `make check` passes after every task, at or below `BASELINE := 30` and `FP_BASELINE := 3`.
 - Keep Mariano's names and structure. Change what the spec needs and nothing else.
 - Brian's lamp (`b0ba98bd-4429-4af0-a514-c71337e54702`) is the only device on this driver, and the only one to send test commands to.
-- Defaults: `colorTempMinim` 2700; `colorTempMaxim` 5500, or the profile's maximum where lower (4000 in both `*-2200-4000` profiles, 5000 in `level-colorTemp-2700-5000`); `limitColorTemp` true.
+- Defaults: `colorTempMinim` 2700; `colorTempMaxim` 5500, or the profile's maximum where lower (4000 in both `*-2200-4000` profiles, 5000 in `level-colorTemp-2700-5000`); `limitColorTemp` true; `circadianTimeEnd` 20 (code fallback `or 20`).
 
 ## Review Focus
 
