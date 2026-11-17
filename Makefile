@@ -81,8 +81,18 @@ fingerprints:
 check: lint fingerprints
 
 # Only gated drivers ship, so nothing reaches the hub without passing `make check`.
+# The Settings screen's first line comes from a "version" preference titled
+# "Unreleased build" in each profile. A commit cannot contain its own hash, so the
+# commit date and short hash are stamped into a temporary copy at package time.
 deploy: check
 	@test -n "$(DRIVER)" || { echo "usage: make deploy DRIVER=<dir>"; exit 2; }
 	@test -n "$(filter $(DRIVER),$(DRIVERS))" || { echo "$(DRIVER) is not in DRIVERS; add it to the gate first"; exit 2; }
 	@test -n "$(CHANNEL)" -a -n "$(HUB)" || { echo "set CHANNEL and HUB in .env"; exit 2; }
-	smartthings edge:drivers:package $(DRIVER) --channel $(CHANNEL) --hub $(HUB)
+	@stage=$$(mktemp -d) && cp -R $(DRIVER) "$$stage/" && \
+	find "$$stage/$(DRIVER)" -mindepth 1 -name '.*' -prune -exec rm -rf {} + && \
+	dirty=$$(test -z "$$(git status --porcelain -- $(DRIVER))" || echo "-dirty") && \
+	stamp="Updated $$(git log -1 --format=%cd --date=short) ($$(git rev-parse --short HEAD)$$dirty)" && \
+	perl -pi -e "s/title: \"Unreleased build\"/title: \"$$stamp\"/" "$$stage"/$(DRIVER)/profiles/*.yml && \
+	echo "Version line: $$stamp" && \
+	smartthings edge:drivers:package "$$stage/$(DRIVER)" --channel $(CHANNEL) --hub $(HUB); \
+	rc=$$?; rm -rf "$$stage"; exit $$rc

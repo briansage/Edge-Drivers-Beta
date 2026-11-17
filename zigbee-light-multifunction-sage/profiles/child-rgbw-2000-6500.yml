@@ -46,8 +46,8 @@ components:
   - name: Light
 preferences:
   - name: "version"
-    title: "Version 6.5 (Feb 2023)"
-    description: "Add: Child device to Mirror Group Control."
+    title: "Unreleased build"
+    description: "https://github.com/briansage/Edge-Drivers-Beta"
     required: false
     preferenceType: string
     definition:
