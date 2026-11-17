@@ -11,6 +11,7 @@ local LAST_KELVIN_SET = "last_kelvin_set"
 local write = require "writeAttribute"
 local child_devices = require "child-devices"
 local circadian_color = require "circadian-color"
+local local_time = require "local-time"
 
 local ColorControl = zcl_clusters.ColorControl
 local CURRENT_X = "current_x_value" -- y value from xyY color space
@@ -1108,7 +1109,7 @@ function driver_handler.random_on_off_handler(driver,device,command)
     random_Step[device] = 0
     random_totalStep[device] = math.ceil(random_timer[device] / 30)
 
-    local nextChange= os.date("%H:%M:%S",os.time() + random_timer[device] + device.preferences.localTimeOffset * 3600)
+    local nextChange= os.date("%H:%M:%S",local_time.for_device(device) + random_timer[device])
 
     --emit time for next change
     device:emit_event(random_Next_Step.randomNext(nextChange))
@@ -1132,7 +1133,7 @@ function driver_handler.random_on_off_handler(driver,device,command)
           random_timer[device] = math.random(device.preferences.randomMin * 60, device.preferences.randomMax * 60)
           random_Step[device] = 0
           random_totalStep[device] = math.ceil(random_timer[device] / 30)
-          nextChange= os.date("%H:%M:%S",os.time() + random_timer[device] + device.preferences.localTimeOffset * 3600)
+          nextChange= os.date("%H:%M:%S",local_time.for_device(device) + random_timer[device])
 
           --emit time for next change
           device:emit_event(random_Next_Step.randomNext(nextChange))
@@ -1499,7 +1500,7 @@ end
 ---------- Circadian rhythm Timer run-------------------
 -- Color only: brightness is left to switches, routines and the app.
 local function circadian_send_color(device)
-  local now = os.time() + device.preferences.localTimeOffset * 3600
+  local now = local_time.for_device(device)
   local colorTemp = circadian_color.kelvin_at(
     device.preferences.colorTempMinim,
     device.preferences.colorTempMaxim,
@@ -2131,7 +2132,7 @@ function driver_handler.on_off_attr_handler(driver, device, value, zb_rx)
   end
   
   if os.time() - last_signal_emit_time > 22 then
-    local gmt = os.date("%Y/%m/%d Time: %H:%M",os.time() + device.preferences.localTimeOffset * 3600)
+    local gmt = os.date("%Y/%m/%d Time: %H:%M",local_time.for_device(device))
     --local dni = string.format("0x%04X", zb_rx.address_header.src_addr.value)
     --local metrics = "<em table style='font-size:75%';'font-weight: bold'</em>".. "<b>GMT: </b>".. gmt .."<BR>"
     --metrics = metrics .. "<b>DNI: </b>".. dni .. "  ".."<b> LQI: </b>" .. zb_rx.lqi.value .."  ".."<b>RSSI: </b>".. zb_rx.rssi.value .. "dbm".."</em>".."<BR>"

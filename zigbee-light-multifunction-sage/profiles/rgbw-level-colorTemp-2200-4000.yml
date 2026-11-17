@@ -83,15 +83,68 @@ preferences:
       minimum: 300
       maximum: 1200
       default:  300
-  - name: "localTimeOffset"
-    title: "Local Time Offset to UTC (-12 to 12)"
-    description: "Select Your Local Time Offset to UTC Time Hours (-12 to 12, Default:0)"
+  - name: "utcOffset"
+    title: "UTC Offset (hours)"
+    description: "Hours from UTC to your standard time, e.g. -8 for US Pacific"
     required: false
-    preferenceType: integer
+    preferenceType: enumeration
     definition:
-      minimum: -12
-      maximum: 12
-      default: 0
+      options:
+        "m23": "-23"
+        "m22": "-22"
+        "m21": "-21"
+        "m20": "-20"
+        "m19": "-19"
+        "m18": "-18"
+        "m17": "-17"
+        "m16": "-16"
+        "m15": "-15"
+        "m14": "-14"
+        "m13": "-13"
+        "m12": "-12"
+        "m11": "-11"
+        "m10": "-10"
+        "m9": "-9"
+        "m8": "-8"
+        "m7": "-7"
+        "m6": "-6"
+        "m5": "-5"
+        "m4": "-4"
+        "m3": "-3"
+        "m2": "-2"
+        "m1": "-1"
+        "0": "0"
+        "p1": "+1"
+        "p2": "+2"
+        "p3": "+3"
+        "p4": "+4"
+        "p5": "+5"
+        "p6": "+6"
+        "p7": "+7"
+        "p8": "+8"
+        "p9": "+9"
+        "p10": "+10"
+        "p11": "+11"
+        "p12": "+12"
+        "p13": "+13"
+        "p14": "+14"
+        "p15": "+15"
+        "p16": "+16"
+        "p17": "+17"
+        "p18": "+18"
+        "p19": "+19"
+        "p20": "+20"
+        "p21": "+21"
+        "p22": "+22"
+        "p23": "+23"
+      default: "0"
+  - name: "usDaylightSaving"
+    title: "Auto-adjust for US daylight saving"
+    description: "Automatically adjust for daylight saving time (US): adds an hour from the second Sunday in March to the first Sunday in November. Leave off where clocks don't change, such as Arizona and Hawaii"
+    required: false
+    preferenceType: boolean
+    definition:
+      default: false
   - name: "changeProfile"
     title: "Select Profile for Color Temperature"
     description: "WARNING CHECK YOUR PREFERENCES: Color Temp Max and Min must be into the Profile Color Temperature Range. Select Profile for Color Temperature, (Default: 2200k-4000k)."
