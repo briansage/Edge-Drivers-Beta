@@ -34,7 +34,6 @@ Opens a browser to sign in.
 Create the channel by copying `channel.example.json` to `channel.json` and filling in
 `name`, `description` and `termsOfServiceUrl`. Keep `"type": "DRIVER"`; the create fails
 without it:
-
 ```
 cp channel.example.json channel.json
 smartthings edge:channels:create --input channel.json
@@ -48,7 +47,7 @@ smartthings edge:channels:enroll <hub id> --channel <channel id>
 cp .env.example .env
 ```
 
-Set `CHANNEL` to the channel ID and `HUB` to the hub ID. `.env` stays out of git.
+Set `CHANNEL` to the channel ID and `HUB` to the hub ID. Don't ever commit `.env` to git.
 
 ### 5. Install a driver
 
@@ -85,6 +84,6 @@ first time:
 smartthings edge:drivers:logcat <driver id> --hub-address <hub ip>
 ```
 
-`AGENTS.md` has the full conventions for working on this repo.
+`AGENTS.md` has the full conventions for AI agents working on this repo.
 
 Feel free to use, modify, improve, and share.
