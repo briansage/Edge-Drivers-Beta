@@ -108,7 +108,7 @@ preferences:
     definition:
       minimum: 0
       maximum: 3600
-      default: 0
+      default: 1
   - name: "levelTransTime"
     title: "Transition Time to New Level(sec)"
     description: "Select Transition Time to Move New Level (0 to 3600 sec, Default: 0). WARNING: If the device is not able to move at a variable rate, the Transition time field MAY be disregarded and not will work"
@@ -117,7 +117,7 @@ preferences:
     definition:
       minimum: 0
       maximum: 3600
-      default: 0
+      default: 1
   - name: "colorTransTime"
     title: "Transition Time to New Color(sec)"
     description: "Select Transition Time to Move New Color (0 to 3600 sec, Default: 0). WARNING: If the device is not able to move at a variable rate, the Transition time field MAY be disregarded and not will work"
@@ -126,7 +126,7 @@ preferences:
     definition:
       minimum: 0
       maximum: 3600
-      default: 0
+      default: 1
   - name: "onTimeMax"
     title: "Turn (ON) Time to End Level(min)"
     description: "Select Time to reach the End Level with Progressive ON function: 6 sec to 45 min (0.1 min to 45 min, Default: 10)"
