@@ -12,6 +12,7 @@ local write = require "writeAttribute"
 local child_devices = require "child-devices"
 local circadian_color = require "circadian-color"
 local local_time = require "local-time"
+local circadian_session = require "circadian-session"
 
 local ColorControl = zcl_clusters.ColorControl
 local CURRENT_X = "current_x_value" -- y value from xyY color space
@@ -350,7 +351,8 @@ function driver_handler.do_init (self, device)
     end
   
     --- restart Circadian timer if activated
-    if circadian_Running[device] == "running" and circadian[device] == "Active" then
+    if circadian_Running[device] == "running" and circadian[device] == "Active"
+      and circadian_session.may_resume(device:get_field("circadian_session")) then
       driver_handler.circadian_handler(self, device)
     end
   
@@ -615,7 +617,8 @@ function driver_handler.do_Preferences (self, device, event, args)
         end
         break
       elseif id == "circadianTimeStart" or id == "circadianTimeEnd" then
-        if device:get_latest_state("main", capabilities.switch.ID, capabilities.switch.switch.NAME) == "on" and circadian[device] == "Active" then
+        if device:get_latest_state("main", capabilities.switch.ID, capabilities.switch.switch.NAME) == "on" and circadian[device] == "Active"
+          and circadian_session.may_resume(device:get_field("circadian_session")) then
           driver_handler.circadian_handler(self, device)
         end
         break
@@ -1519,6 +1522,7 @@ local function circadian_send_color(device)
 end
 
 function driver_handler.circadian_handler(self, device)
+  device:set_field("circadian_session", circadian_session.on_start(), {persist = true})
   circadian_Running[device] = "running"
   device:set_field("circadian_Running[device]", circadian_Running[device], {persist = false})
   circadian_send_color(device)
@@ -1532,6 +1536,7 @@ end
 
 -- Ends circadian until the light next turns on; the circadian control stays Active.
 function driver_handler.circadian_end_session(driver, device)
+  device:set_field("circadian_session", circadian_session.on_color_set(), {persist = true})
   local timer = device:get_field("timer_circadian")
   if timer then
     device.thread:cancel_timer(timer)
@@ -1777,6 +1782,7 @@ function driver_handler.on_handler (driver, device, command, group)
   ------------ TURN OFF handler -----------
   
 function driver_handler.off_handler (driver, device, command)
+  device:set_field("circadian_session", circadian_session.on_off(), {persist = true})
   print("Turn Off handler >>>>>>>>>>>")
   -- set to no jump the dimming
   dimJump[device] = "no"
@@ -2080,6 +2086,7 @@ function driver_handler.on_off_attr_handler(driver, device, value, zb_rx)
 
    ---deactivate color Continous Change  
   if value.value == false then
+    device:set_field("circadian_session", circadian_session.on_off(), {persist = true})
     if device:supports_capability_by_id(capabilities.colorControl.ID) and device:get_field("colorChanging") == "Active" then
       device:set_field("colorChanging_timer", "stopped", {persist = false})
       local child_device = device:get_child_by_parent_assigned_key("main")
@@ -2141,14 +2148,16 @@ function driver_handler.on_off_attr_handler(driver, device, value, zb_rx)
     device:emit_event(signal_Metrics.signalMetrics({value = metrics}, {visibility = {displayed = visible_satate }}))
   end
 
-  local was_off = device:get_latest_state("main", capabilities.switch.ID, capabilities.switch.switch.NAME) == "off"
   local attr = capabilities.switch.switch
   device:emit_event_for_endpoint(zb_rx.address_header.src_endpoint.value, value.value and attr.on() or attr.off())
 
-  -- a switch bound to the bulb's Zigbee group turns it on without the hub; periodic reports while on don't restart
-  if value.value == true and was_off and circadian[device] == "Active" and device:get_field("timer_circadian") == nil
-    and device:get_field("colorChanging") ~= "Active" then
-    driver_handler.circadian_handler(driver, device)
+  -- a switch bound to the bulb's Zigbee group turns it on without the hub. Only a turn-on after an off may start
+  -- circadian, so periodic reports and the report after a color change don't restart it
+  if value.value == true then
+    local state, start = circadian_session.on_report_on(device:get_field("circadian_session"),
+      circadian[device] == "Active" and device:get_field("colorChanging") ~= "Active")
+    device:set_field("circadian_session", state, {persist = true})
+    if start then driver_handler.circadian_handler(driver, device) end
   end
 
   --emit event in child device
