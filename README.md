@@ -31,10 +31,12 @@ Opens a browser to sign in.
 
 ### 3. Create a channel and enroll your hub
 
-Create channel by creating `channel.json` with details for `name`, `description`, `termsOfServiceUrl`
-and `"type": "DRIVER"`:
+Create the channel by copying `channel.example.json` to `channel.json` and filling in
+`name`, `description` and `termsOfServiceUrl`. Keep `"type": "DRIVER"`; the create fails
+without it:
 
 ```
+cp channel.example.json channel.json
 smartthings edge:channels:create --input channel.json
 smartthings devices --type HUB
 smartthings edge:channels:enroll <hub id> --channel <channel id>
