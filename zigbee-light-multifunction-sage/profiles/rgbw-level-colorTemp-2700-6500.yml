@@ -345,7 +345,7 @@ preferences:
       default: 20
   - name: "colorTempMinim"
     title: "Color Temperature  Min value (k)"
-    description: "Select Maximum Color Temp Increment value (2700k to 6000k, Default: 2700)"
+    description: "Select Minimum Color Temp value (2700k to 6000k, Default: 2700)"
     required: false
     preferenceType: number
     definition:
