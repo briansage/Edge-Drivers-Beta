@@ -345,7 +345,7 @@ preferences:
       default: 20
   - name: "colorTempMinim"
     title: "Color Temperature  Min value (k)"
-    description: "Select Maximum Color Temp Increment value (2000k to 6000k, Default: 2500). Used as minimum Color Temp for Circadian function. Use as general limit if preference: Use ColorTemp Min and Max as limits = true"
+    description: "Select Minimum Color Temp value (2000k to 6000k, Default: 2500). Used as minimum Color Temp for Circadian function. Use as general limit if preference: Use ColorTemp Min and Max as limits = true"
     required: false
     preferenceType: number
     definition:
