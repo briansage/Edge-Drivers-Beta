@@ -45,6 +45,9 @@ make fingerprints DRIVERS="<list> <new-driver>"  # set FP_BASELINE to the proble
 Driver tests under `src/test/` run in the SmartThings integration_test container.
 `make check` is the local gate.
 
+GitHub Actions runs `make check` and `make test` on every pull request and every push
+to `main` (`.github/workflows/ci.yml`).
+
 Configuration lives in `.luacheckrc`. The Edge runtime is sandboxed Lua 5.3 and every
 `st.*` module arrives via `require` at runtime, so `std = "lua53"` is the baseline.
 Whitespace codes and unused arguments are filtered; framework handler signatures are
