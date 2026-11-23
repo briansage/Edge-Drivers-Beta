@@ -42,7 +42,10 @@ make lint DRIVERS="<list> <new-driver>"          # set BASELINE to the warning c
 make fingerprints DRIVERS="<list> <new-driver>"  # set FP_BASELINE to the problem count
 ```
 
-Driver tests under `src/test/` run in the SmartThings integration_test container.
+`make test` runs each gated driver's `src/test/test_*.lua` with plain `lua` from the
+driver's `src/`, so those tests may only `require` the driver's own modules. Upstream
+tests that use `integration_test` need the SmartThings lua_libs and fail under
+`make test`; keep them out of gated drivers or rename them so the glob skips them.
 `make check` is the local gate.
 
 GitHub Actions runs `make check` and `make test` on every pull request and every push

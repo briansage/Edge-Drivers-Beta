@@ -1,6 +1,5 @@
 # Verification targets for the Edge driver repo.
-# No build chain: luacheck and stylua are installed via Homebrew.
-#   brew install luacheck stylua
+# No build chain. Tools: `brew bundle` (Brewfile) and `mise install` (mise.toml); see AGENTS.md "Tooling".
 
 # Drivers the gate covers: the ones being worked on, not the whole fork. Adding one
 # means re-measuring both baselines below with it included, in the same change.
@@ -32,7 +31,9 @@ help:
 	@echo "make test          - plain-Lua unit tests in each DRIVERS src/test/"
 	@echo "make deploy        - check, then package DRIVER to CHANNEL and install on HUB: make deploy DRIVER=<dir>"
 
+# BASELINE was measured with this version, and CI installs the same one.
 lint:
+	@luacheck --version | grep -q '^Luacheck: 1.2.0' || { echo "luacheck 1.2.0 required (see AGENTS.md)"; exit 1; }
 	@out=$$(luacheck $(DRIVERS) --no-color --codes -q 2>&1); \
 	total=$$(printf '%s\n' "$$out" | sed -n 's/^Total: \([0-9]*\) warnings* \/ \([0-9]*\) errors*.*/\1 \2/p'); \
 	warns=$$(echo $$total | cut -d' ' -f1); errs=$$(echo $$total | cut -d' ' -f2); \
