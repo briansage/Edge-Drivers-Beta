@@ -616,7 +616,7 @@ function driver_handler.do_Preferences (self, device, event, args)
          child_devices.create_new_device(self, device, "main", "child-rgbw-2000-6500")
         end
         break
-      elseif id == "circadianTimeStart" or id == "circadianTimeEnd" then
+      elseif id == "circadianLatitude" then
         if device:get_latest_state("main", capabilities.switch.ID, capabilities.switch.switch.NAME) == "on" and circadian[device] == "Active"
           and circadian_session.may_resume(device:get_field("circadian_session")) then
           driver_handler.circadian_handler(self, device)
@@ -1503,14 +1503,14 @@ end
 ---------- Circadian rhythm Timer run-------------------
 -- Color only: brightness is left to switches, routines and the app.
 local function circadian_send_color(device)
-  local now = local_time.for_device(device)
+  -- Standard time, not daylight time: the sun ignores DST.
+  local t = os.date("!*t", os.time() + local_time.parse_offset(device.preferences.utcOffset) * 3600)
   local colorTemp = circadian_color.kelvin_at(
     device.preferences.colorTempMinim,
     device.preferences.colorTempMaxim,
-    device.preferences.circadianTimeStart or 6,
-    device.preferences.circadianTimeEnd or 20,
-    tonumber(os.date("%H", now)),
-    tonumber(os.date("%M", now)))
+    local_time.parse_offset(device.preferences.circadianLatitude or "p40"), -- unset would parse as 0, the equator
+    t.yday,
+    t.hour + t.min / 60)
   if device.preferences.logDebugPrint == true then
     print("<<< Circadian colorTemp =", colorTemp)
   end

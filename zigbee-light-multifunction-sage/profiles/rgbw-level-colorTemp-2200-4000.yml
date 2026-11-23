@@ -325,24 +325,21 @@ preferences:
       stringType: text
       minLength: 0
       maxLength: 0
-  - name: "circadianTimeStart"
-    title: "Local Time Circadian Period Start"
-    description: "Local Time for Circadian Period Start (4 h to 10 h). Default: 6h"
+  - name: "circadianLatitude"
+    title: "Circadian Location"
+    description: "Your latitude band. Color runs from dawn to dusk for the season, coolest at midday"
     required: false
-    preferenceType: integer
+    preferenceType: enumeration
     definition:
-      minimum: 4
-      maximum: 10
-      default: 6
-  - name: "circadianTimeEnd"
-    title: "Local Time Circadian Period End"
-    description: "Local Time for Circadian Period End (14 h to 24 h). Default :18"
-    required: false
-    preferenceType: integer
-    definition:
-      minimum: 14
-      maximum: 24
-      default: 20
+      options:
+        "p70": "Arctic"
+        "p55": "Northern Subpolar (London, Oslo)"
+        "p40": "Northern (New York, Tokyo, Rome)"
+        "0": "Equatorial"
+        "m35": "Southern (Sydney, Buenos Aires)"
+        "m54": "Southern Subpolar (Ushuaia)"
+        "m75": "Antarctic"
+      default: "p40"
   - name: "colorTempMinim"
     title: "Color Temperature  Min value (k)"
     description: "Select Minimum Color Temp value (2200k to 3800k, Default: 2500)"

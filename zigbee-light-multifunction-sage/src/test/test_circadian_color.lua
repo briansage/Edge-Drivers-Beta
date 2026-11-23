@@ -1,13 +1,33 @@
--- Plain Lua check of the circadian sun curve. Run from src/: lua test/test_circadian_color.lua
+-- Plain Lua check of the circadian dawn-to-dusk curve. Run from src/: lua test/test_circadian_color.lua
 package.path = "./?.lua;" .. package.path
-local cc = require "circadian-color"
-local k = cc.kelvin_at
-assert(k(2700, 5500, 6, 18, 6, 0) == 2700, "sunrise")
-assert(k(2700, 5500, 6, 18, 12, 0) == 5500, "noon")
-assert(k(2700, 5500, 6, 18, 9, 0) == 4680, "mid-morning")
-assert(k(2700, 5500, 6, 18, 17, 30) == 3062, "late afternoon interpolates")
-assert(k(2700, 5500, 6, 18, 20, 0) == 2700, "after end holds min")
-assert(k(2700, 5500, 6, 18, 0, 15) == 2700, "midnight holds min")
-assert(k(2700, 5500, 20, 6, 22, 0) == 2700, "start after end holds min")
-assert(k(5000, 3000, 6, 18, 12, 0) == 5000, "min above max holds min")
+local cc = require("circadian-color")
+local w, k = cc.civil_window, cc.kelvin_at
+
+local function near(x, want, label)
+  assert(math.abs(x - want) < 0.02, label .. ": got " .. tostring(x))
+end
+
+local dawn, dusk = w(0, 79)
+near(dawn, 5.600, "equinox dawn")
+near(dusk, 18.400, "equinox dusk")
+dawn, dusk = w(40, 172)
+near(dawn, 3.945, "June dawn at 40N")
+near(dusk, 20.055, "June dusk at 40N")
+dawn, dusk = w(40, 355)
+near(dawn, 6.828, "December dawn at 40N")
+near(dusk, 17.172, "December dusk at 40N")
+assert(w(-75, 172) == nil, "polar night")
+dawn, dusk = w(-75, 355)
+assert(dawn == 0 and dusk == 24, "continuous twilight")
+
+assert(k(2700, 5500, 40, 172, 12) == 5500, "noon peak")
+assert(k(2700, 5500, 40, 172, 9) == 5034, "June morning")
+assert(k(2700, 5500, 40, 355, 9) == 4416, "December morning is warmer")
+assert(k(2700, 5500, 40, 172, 18) == 3792, "June evening")
+assert(k(2700, 5500, 40, 355, 18) == 2700, "after December dusk holds min")
+assert(k(2700, 5500, -35, 355, 18) == 3673, "southern summer evening")
+assert(k(2700, 5500, -75, 172, 12) == 2700, "polar night holds min")
+assert(k(2700, 5500, -75, 355, 6) == 4680, "continuous twilight spans the day")
+assert(k(2700, 5500, 40, 172, 0) == 2700, "midnight holds min")
+assert(k(5000, 3000, 40, 172, 12) == 5000, "min above max holds min")
 print("ok")
