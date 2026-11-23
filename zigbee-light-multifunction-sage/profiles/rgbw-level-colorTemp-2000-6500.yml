@@ -333,11 +333,11 @@ preferences:
     definition:
       options:
         "p70": "Arctic"
-        "p55": "Northern Subpolar (London, Vancouver, Oslo)"
+        "p55": "Northern Subpolar (London, Oslo)"
         "p40": "Northern (New York, Tokyo, Rome)"
         "0": "Equatorial"
         "m35": "Southern (Sydney, Buenos Aires)"
-        "m54": "Southern Subpolar (Ushuaia, Punta Arenas)"
+        "m54": "Southern Subpolar (Ushuaia)"
         "m75": "Antarctic"
       default: "p40"
   - name: "colorTempMinim"
