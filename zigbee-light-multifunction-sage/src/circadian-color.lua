@@ -1,30 +1,32 @@
--- Circadian color temperature by local time of day.
--- The sun angle runs 0º at the period start, 90º at its middle and back to 0º at its end;
--- color follows sin(angle) between min and max, interpolated across the hour.
+-- Circadian color temperature from civil dawn to civil dusk (sun 6º below the horizon).
+-- Color follows a half sine between min and max across that window, coolest at solar noon.
 
 local circadian_color = {}
 
-local function round(x)
-  return math.floor(x + 0.5)
-end
-
-local function sun_angle(h, start_hour, mid)
-  local a = (h - start_hour) / (mid - start_hour)
-  if a > 1 then return (2 - a) * 90 end
-  return a * 90
-end
-
-function circadian_color.kelvin_at(min_k, max_k, start_hour, end_hour, hour, minute)
-  if hour == 0 then hour = 24 end
-  if hour < start_hour or hour >= end_hour then return min_k end
-
-  local mid = (start_hour + end_hour) / 2
-  local function k(h)
-    return min_k + (max_k - min_k) * math.sin(math.rad(sun_angle(h, start_hour, mid)))
+-- Dawn and dusk in local standard-time hours for a latitude and day of year; nil in polar night.
+-- shortcut: solar noon is fixed at 12:00 standard time, ignoring longitude within the time
+-- zone and the equation of time (up to 16 min); add the equation of time if dusk looks off.
+function circadian_color.civil_window(lat, yday)
+  local decl = math.rad(-23.44) * math.cos(2 * math.pi / 365 * (yday + 10))
+  local phi = math.rad(lat)
+  local cos_h = (math.sin(math.rad(-6)) - math.sin(phi) * math.sin(decl)) / (math.cos(phi) * math.cos(decl))
+  if cos_h >= 1 then
+    return nil
   end
-  local kelvin = math.floor(round(k(hour) + (k(hour + 1) - k(hour)) * minute / 60))
-  if kelvin < min_k then kelvin = min_k end
-  return kelvin
+  if cos_h <= -1 then
+    return 0, 24
+  end
+  local half = math.deg(math.acos(cos_h)) / 15
+  return 12 - half, 12 + half
+end
+
+-- hour is fractional local standard time, e.g. 17.5 for 17:30.
+function circadian_color.kelvin_at(min_k, max_k, lat, yday, hour)
+  local dawn, dusk = circadian_color.civil_window(lat, yday)
+  if not dawn or hour <= dawn or hour >= dusk or max_k <= min_k then
+    return min_k
+  end
+  return math.floor(min_k + (max_k - min_k) * math.sin(math.pi * (hour - dawn) / (dusk - dawn)) + 0.5)
 end
 
 return circadian_color

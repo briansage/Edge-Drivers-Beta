@@ -6,6 +6,17 @@ version 6. Supported devices are listed in [fingerprints.yml](fingerprints.yml).
 
 ## Sage changes
 
+### 2026-11-23
+
+- **Circadian follows the seasons.** Color now runs from dawn to dusk (the end of
+  twilight, sun 6° below the horizon) for the day of the year, coolest at midday and warmest
+  outside that window. The new **Circadian Location** setting picks a latitude band; it
+  defaults to Northern (New York, Tokyo, Rome). The Circadian Period Start and End settings
+  are gone.
+- Midday is taken as 12:00 standard time, so during daylight saving the coolest point is at
+  1 PM on the clock. Dawn and dusk can be up to about 16 minutes off from the real sky, more
+  if you live far from your time zone's center.
+
 ### 2026-11-17
 
 - **Circadian changes color only.** It no longer touches brightness. It starts when the
@@ -15,7 +26,7 @@ version 6. Supported devices are listed in [fingerprints.yml](fingerprints.yml).
 - **Circadian brightness settings removed.** Circadian MIN/MAX Level and the night setting
   no longer did anything.
 - **New defaults.** Color temperature 2700–5500K (or the bulb's ceiling), used as limits on
-  color commands. Circadian period 6:00–20:00. Transition times 1 second; 0 means the
+  color commands. Circadian period 6:00–20:00 (replaced by dawn to dusk on 2026-11-23). Transition times 1 second; 0 means the
   bulb's own speed.
 - **Local time.** "Local Time Offset" is replaced by **UTC Offset (hours)**, −23 to +23,
   and **Auto-adjust for US daylight saving**. The hub clock runs on UTC, so set the offset
