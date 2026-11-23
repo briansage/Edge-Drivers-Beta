@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      # Lua 5.3 matches the Edge runtime; luacheck is pinned to the version in AGENTS.md.
+      - name: Install Lua 5.3 and luacheck
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends lua5.3 liblua5.3-dev luarocks
+          sudo luarocks --lua-version=5.3 install luacheck 1.2.0
+          lua -v 2>&1 | grep -q 'Lua 5.3' || { lua -v; echo "lua is not 5.3"; exit 1; }
+          luacheck --version
+
+      - name: make check
+        run: make check
+
+      - name: make test
+        run: make test
