@@ -28,6 +28,8 @@ components:
     version: 1
   - id: legendabsolute60149.circadian
     version: 1
+  - id: watchangel42614.circadianRange
+    version: 1
   - id: legendabsolute60149.effectsSetCommand
     version: 1
   - id: legendabsolute60149.mirrorGroupFunction
@@ -505,6 +507,9 @@ deviceConfig:
       capability: legendabsolute60149.circadian
       version: 1
     - component: main
+      capability: watchangel42614.circadianRange
+      version: 1
+    - component: main
       capability: legendabsolute60149.effectsSetCommand
       version: 1
     - component: main
@@ -558,6 +563,9 @@ deviceConfig:
         capability: legendabsolute60149.circadian
         version: 1
       - component: main
+        capability: watchangel42614.circadianRange
+        version: 1
+      - component: main
         capability: legendabsolute60149.effectsSetCommand
         version: 1
       - component: main
@@ -599,6 +607,9 @@ deviceConfig:
         version: 1
       - component: main
         capability: legendabsolute60149.circadian
+        version: 1
+      - component: main
+        capability: watchangel42614.circadianRange
         version: 1
       - component: main
         capability: legendabsolute60149.effectsSetCommand

@@ -8,6 +8,11 @@ version 6. Supported devices are listed in [fingerprints.yml](fingerprints.yml).
 
 ### 2026-11-23
 
+- **Circadian Range control.** A new list on the device screen, under Circadian
+  Lighting, picks the circadian colors: **2700–5000K** (the default) or **Use settings
+  (Min/Max)**. Scenes and routines can set it on every light at once. The Min/Max
+  settings still limit color commands either way. The capability is
+  `watchangel42614.circadianRange`; its definition is in [capabilities/](capabilities).
 - **Circadian follows the seasons.** Color now runs from dawn to dusk (the end of
   twilight, sun 6° below the horizon) for the day of the year, coolest at midday and warmest
   outside that window. The new **Circadian Location** setting picks a latitude band; it

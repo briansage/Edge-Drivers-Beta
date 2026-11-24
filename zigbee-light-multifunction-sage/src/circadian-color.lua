@@ -20,6 +20,14 @@ function circadian_color.civil_window(lat, yday)
   return 12 - half, 12 + half
 end
 
+-- Curve endpoints for the Circadian Range control; anything but "settings" (including unset) is 2700-5000K.
+function circadian_color.range(choice, min_k, max_k)
+  if choice == "settings" then
+    return min_k, max_k
+  end
+  return 2700, 5000
+end
+
 -- hour is fractional local standard time, e.g. 17.5 for 17:30.
 function circadian_color.kelvin_at(min_k, max_k, lat, yday, hour)
   local dawn, dusk = circadian_color.civil_window(lat, yday)

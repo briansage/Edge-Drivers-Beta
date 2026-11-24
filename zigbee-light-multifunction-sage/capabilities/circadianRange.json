@@ -1,0 +1,26 @@
+{
+  "name": "Circadian Range",
+  "ephemeral": false,
+  "attributes": {
+    "circadianRange": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "value": { "type": "string", "enum": ["k2700_5000", "settings"] }
+        },
+        "additionalProperties": false,
+        "required": ["value"]
+      },
+      "setter": "setCircadianRange",
+      "enumCommands": []
+    }
+  },
+  "commands": {
+    "setCircadianRange": {
+      "name": "setCircadianRange",
+      "arguments": [
+        { "name": "value", "optional": false, "schema": { "type": "string", "enum": ["k2700_5000", "settings"] } }
+      ]
+    }
+  }
+}

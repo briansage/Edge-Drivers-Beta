@@ -39,6 +39,7 @@ local random_Next_Step = capabilities["legendabsolute60149.randomNextStep"]
 local level_Steps = capabilities["legendabsolute60149.levelSteps"]
 local color_Temperature_Steps = capabilities["legendabsolute60149.colorTemperatureSteps"]
 local circadian_Light = capabilities["legendabsolute60149.circadian"]
+local circadian_Range = capabilities["watchangel42614.circadianRange"]
 local color_Changing = capabilities["legendabsolute60149.colorChanging"]
 local color_Change_Timer = capabilities["legendabsolute60149.colorChangeTimer"]
 local color_Change_Mode = capabilities["legendabsolute60149.colorChangeMode1"]
@@ -556,6 +557,9 @@ local zigbee_bulb_driver_template = {
     },
     [circadian_Light.ID] = {
       [circadian_Light.commands.setCircadian.NAME] = mirror_groups.circadian_Light_handler,
+    },
+    [circadian_Range.ID] = {
+      [circadian_Range.commands.setCircadianRange.NAME] = mirror_groups.circadian_Range_handler,
     },
     [color_Changing.ID] = {
       [color_Changing.commands.setColorChanging.NAME] = mirror_groups.color_Changing_handler,

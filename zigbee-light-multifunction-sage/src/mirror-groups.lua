@@ -22,6 +22,7 @@ local prog_On = capabilities["legendabsolute60149.progressiveOn1"]
 local prog_Off = capabilities["legendabsolute60149.progressiveOff1"]
 --local random_Next_Step = capabilities["legendabsolute60149.randomNextStep"]
 local circadian_Light = capabilities["legendabsolute60149.circadian"]
+local circadian_Range = capabilities["watchangel42614.circadianRange"]
 local color_Changing = capabilities["legendabsolute60149.colorChanging"]
 local color_Change_Timer = capabilities["legendabsolute60149.colorChangeTimer"]
 local color_Change_Mode = capabilities["legendabsolute60149.colorChangeMode1"]
@@ -502,6 +503,26 @@ function mirror_groups.circadian_Light_handler(driver, device, command)
       end
   else
     dimmer.circadian_Light_handler(driver, device, command)
+  end
+end
+
+---- circadian_Range_handler
+function mirror_groups.circadian_Range_handler(driver, device, command)
+  if device.network_type == "DEVICE_EDGE_CHILD" then  ---- device (is Child device)
+    device:emit_event(circadian_Range.circadianRange(command.args.value))
+    if device:get_field("mirror_group_function") == "Active" then
+      for _, dev in pairs(device.driver:get_devices()) do
+        if dev.network_type ~= "DEVICE_EDGE_CHILD" and
+          dev:get_field("mirror_group_function") == "Active" and
+          dev:supports_capability_by_id(circadian_Range.ID) and
+          device.preferences.onOffGroup > 0 and
+          dev.preferences.onOffGroup == device.preferences.onOffGroup then
+            dimmer.circadian_Range_handler(driver, dev, command)
+        end
+      end
+    end
+  else
+    dimmer.circadian_Range_handler(driver, device, command)
   end
 end
 

@@ -1,0 +1,58 @@
+{
+  "dashboard": { "states": [], "actions": [] },
+  "detailView": [
+    {
+      "label": "Circadian Range",
+      "displayType": "list",
+      "list": {
+        "command": {
+          "name": "setCircadianRange",
+          "alternatives": [
+            { "key": "k2700_5000", "value": "2700–5000K", "type": "active" },
+            { "key": "settings", "value": "Use settings (Min/Max)", "type": "active" }
+          ],
+          "argumentType": "string"
+        },
+        "state": {
+          "value": "circadianRange.value",
+          "valueType": "string",
+          "alternatives": [
+            { "key": "k2700_5000", "value": "2700–5000K", "type": "active" },
+            { "key": "settings", "value": "Use settings (Min/Max)", "type": "active" }
+          ]
+        }
+      }
+    }
+  ],
+  "automation": {
+    "conditions": [
+      {
+        "label": "Circadian Range",
+        "displayType": "list",
+        "list": {
+          "alternatives": [
+            { "key": "k2700_5000", "value": "2700–5000K", "type": "active" },
+            { "key": "settings", "value": "Use settings (Min/Max)", "type": "active" }
+          ],
+          "value": "circadianRange.value",
+          "valueType": "string",
+          "multiSelectable": false
+        }
+      }
+    ],
+    "actions": [
+      {
+        "label": "Circadian Range",
+        "displayType": "list",
+        "list": {
+          "alternatives": [
+            { "key": "k2700_5000", "value": "2700–5000K", "type": "active" },
+            { "key": "settings", "value": "Use settings (Min/Max)", "type": "active" }
+          ],
+          "command": "setCircadianRange",
+          "argumentType": "string"
+        }
+      }
+    ]
+  }
+}

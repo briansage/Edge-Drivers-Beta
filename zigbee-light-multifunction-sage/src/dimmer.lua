@@ -87,6 +87,7 @@ local random_Next_Step = capabilities["legendabsolute60149.randomNextStep"]
 local level_Steps = capabilities["legendabsolute60149.levelSteps"]
 local color_Temperature_Steps = capabilities["legendabsolute60149.colorTemperatureSteps"]
 local circadian_Light = capabilities["legendabsolute60149.circadian"]
+local circadian_Range = capabilities["watchangel42614.circadianRange"]
 local color_Changing = capabilities["legendabsolute60149.colorChanging"]
 local color_Change_Timer = capabilities["legendabsolute60149.colorChangeTimer"]
 local color_Change_Mode = capabilities["legendabsolute60149.colorChangeMode1"]
@@ -177,6 +178,12 @@ function driver_handler.do_init (self, device)
   else
     device:set_field("progOff[device]", cap_status, {persist = false})
     progOff[device] = device:get_field("progOff[device]")
+  end
+
+  -- Circadian Range starts at 2700-5000K
+  if device:supports_capability_by_id(circadian_Range.ID)
+    and device:get_latest_state("main", circadian_Range.ID, circadian_Range.circadianRange.NAME) == nil then
+    device:emit_event(circadian_Range.circadianRange("k2700_5000"))
   end
 
   -- restart Circadian status
@@ -1438,6 +1445,17 @@ function driver_handler.hue_Steps_handler(driver, device, command)
 end
 
 -----------------------------------------------
+----------- circadian_Range_handler -----------
+
+function driver_handler.circadian_Range_handler(driver, device, command)
+  device:emit_event(circadian_Range.circadianRange(command.args.value))
+  if device:get_latest_state("main", capabilities.switch.ID, capabilities.switch.switch.NAME) == "on" and circadian[device] == "Active"
+    and circadian_session.may_resume(device:get_field("circadian_session")) then
+    driver_handler.circadian_handler(driver, device)
+  end
+end
+
+-----------------------------------------------
 ----------- circadian_Light_handler -----------
 
 function driver_handler.circadian_Light_handler(driver, device, command)
@@ -1505,9 +1523,13 @@ end
 local function circadian_send_color(device)
   -- Standard time, not daylight time: the sun ignores DST.
   local t = os.date("!*t", os.time() + local_time.parse_offset(device.preferences.utcOffset) * 3600)
-  local colorTemp = circadian_color.kelvin_at(
+  local min_k, max_k = circadian_color.range(
+    device:get_latest_state("main", circadian_Range.ID, circadian_Range.circadianRange.NAME),
     device.preferences.colorTempMinim,
-    device.preferences.colorTempMaxim,
+    device.preferences.colorTempMaxim)
+  local colorTemp = circadian_color.kelvin_at(
+    min_k,
+    max_k,
     local_time.parse_offset(device.preferences.circadianLatitude or "p40"), -- unset would parse as 0, the equator
     t.yday,
     t.hour + t.min / 60)
