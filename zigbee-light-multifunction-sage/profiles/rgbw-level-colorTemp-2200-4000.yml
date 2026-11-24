@@ -343,8 +343,8 @@ preferences:
         "m75": "Antarctic"
       default: "p40"
   - name: "colorTempMinim"
-    title: "Color Temperature  Min value (k)"
-    description: "Select Minimum Color Temp value (2200k to 3800k, Default: 2500)"
+    title: "Color Temperature Min (K)"
+    description: "Warmest color, 2200K to 3800K. Color commands stay within Min and Max"
     required: false
     preferenceType: number
     definition:
@@ -352,21 +352,14 @@ preferences:
       maximum: 3800
       default: 2500
   - name: "colorTempMaxim"
-    title: "ColorTemp Increment Max value (k)"
-    description: "Select Maximum Color Temp Increment value (2700k to 4000k, Default: 4000)"
+    title: "Color Temperature Max (K)"
+    description: "Coolest color, 2700K to 4000K. Color commands stay within Min and Max"
     required: false
     preferenceType: number
     definition:
       minimum: 2700
       maximum: 4000
       default: 4000
-  - name: "limitColorTemp"
-    title: "Use ColorTemp Min and Max as limits"
-    description: "Use ColorTemp Min and Max values as limits for this device"
-    required: false
-    preferenceType: boolean
-    definition:
-      default: true
   - name: "hdrDimming"
     title: "━━━━━━ DIMMING ━━━━━━━━━━━━━━━━━"
     description: "Lowest level and how external step commands behave"

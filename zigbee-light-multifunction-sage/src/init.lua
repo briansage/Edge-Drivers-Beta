@@ -113,12 +113,10 @@ local function set_color_Temperature_handler(self,device,command)
     print("handler_Color Temp >>>>>>>>>>>>>>",command.args.temperature)
   end
   local colorTemp = command.args.temperature
-  if device.preferences.limitColorTemp == true then 
-    if colorTemp > device.preferences.colorTempMaxim then 
-      colorTemp = tonumber(math.floor(device.preferences.colorTempMaxim))
-    elseif colorTemp < device.preferences.colorTempMinim then 
-      colorTemp = tonumber(math.floor(device.preferences.colorTempMinim))
-    end
+  if colorTemp > device.preferences.colorTempMaxim then 
+    colorTemp = tonumber(math.floor(device.preferences.colorTempMaxim))
+  elseif colorTemp < device.preferences.colorTempMinim then 
+    colorTemp = tonumber(math.floor(device.preferences.colorTempMinim))
   end
   device:set_field(LAST_KELVIN_SET .. command.component, colorTemp)
   local colorTemp_Mireds= utils.round(1000000 / colorTemp)
@@ -250,12 +248,10 @@ local function color_temperature_handler(driver, device, value, zb_rx)
         temp_in_kelvin = last_kelvin_set
       end
     end
-    if device.preferences.limitColorTemp == true then 
-      if temp_in_kelvin > device.preferences.colorTempMaxim then 
-        temp_in_kelvin = tonumber(math.floor(device.preferences.colorTempMaxim))
-      elseif temp_in_kelvin < device.preferences.colorTempMinim then 
-        temp_in_kelvin = tonumber(math.floor(device.preferences.colorTempMinim))
-      end
+    if temp_in_kelvin > device.preferences.colorTempMaxim then 
+      temp_in_kelvin = tonumber(math.floor(device.preferences.colorTempMaxim))
+    elseif temp_in_kelvin < device.preferences.colorTempMinim then 
+      temp_in_kelvin = tonumber(math.floor(device.preferences.colorTempMinim))
     end
     if device.preferences.logDebugPrint == true then
       print("<<<< temp_in_kelvin emit >>>>>",temp_in_kelvin)

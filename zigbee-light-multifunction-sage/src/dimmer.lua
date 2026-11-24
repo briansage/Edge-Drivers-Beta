@@ -1373,12 +1373,10 @@ function driver_handler.color_Temperature_Steps_handler(driver, device, command)
     local colorTemp = math.floor(utils.round(colorTemp_step + colorTemp_prev))
     
     -- check if colortemp is limited
-    if device.preferences.limitColorTemp == true then 
-      if colorTemp > device.preferences.colorTempMaxim then 
-        colorTemp = math.floor(device.preferences.colorTempMaxim)
-      elseif colorTemp < device.preferences.colorTempMinim then 
-        colorTemp = math.floor(device.preferences.colorTempMinim)
-      end
+    if colorTemp > device.preferences.colorTempMaxim then 
+      colorTemp = math.floor(device.preferences.colorTempMaxim)
+    elseif colorTemp < device.preferences.colorTempMinim then 
+      colorTemp = math.floor(device.preferences.colorTempMinim)
     end
 
     --print("colorTemp", colorTemp)

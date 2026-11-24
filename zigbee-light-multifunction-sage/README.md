@@ -6,6 +6,12 @@ version 6. Supported devices are listed in [fingerprints.yml](fingerprints.yml).
 
 ## Sage changes
 
+### 2026-11-24
+
+- **Color Temperature Min and Max always limit color.** The "Use ColorTemp Min and Max as
+  limits" setting is gone; every light had it on. The two settings are renamed **Color
+  Temperature Min (K)** and **Color Temperature Max (K)**.
+
 ### 2026-11-23
 
 - **Circadian Range control.** A new list on the device screen, under Circadian
