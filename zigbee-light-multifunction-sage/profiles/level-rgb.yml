@@ -416,10 +416,25 @@ deviceConfig:
       capability: switchLevel
       version: 1
     - component: main
-      capability: legendabsolute60149.levelSteps
+      capability: colorControl
       version: 1
     - component: main
-      capability: colorControl
+      capability: legendabsolute60149.circadian
+      version: 1
+    - component: main
+      capability: legendabsolute60149.colorChanging
+      version: 1
+    - component: main
+      capability: legendabsolute60149.colorChangeTimer
+      version: 1
+    - component: main
+      capability: legendabsolute60149.colorChangeMode1
+      version: 1
+    - component: main
+      capability: legendabsolute60149.effectsSetCommand
+      version: 1
+    - component: main
+      capability: legendabsolute60149.levelSteps
       version: 1
     - component: main
       capability: legendabsolute60149.hueSteps
@@ -438,21 +453,6 @@ deviceConfig:
       version: 1
     - component: main
       capability: legendabsolute60149.forcedOnLevel
-      version: 1
-    - component: main
-      capability: legendabsolute60149.circadian
-      version: 1
-    - component: main
-      capability: legendabsolute60149.colorChanging
-      version: 1
-    - component: main
-      capability: legendabsolute60149.colorChangeTimer
-      version: 1
-    - component: main
-      capability: legendabsolute60149.colorChangeMode1
-      version: 1
-    - component: main
-      capability: legendabsolute60149.effectsSetCommand
       version: 1
     - component: main
       capability: legendabsolute60149.mirrorGroupFunction

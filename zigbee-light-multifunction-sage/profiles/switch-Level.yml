@@ -397,6 +397,9 @@ deviceConfig:
       capability: switchLevel
       version: 1
     - component: main
+      capability: legendabsolute60149.effectsSetCommand
+      version: 1
+    - component: main
       capability: legendabsolute60149.levelSteps
       version: 1
     - component: main
@@ -413,9 +416,6 @@ deviceConfig:
       version: 1
     - component: main
       capability: legendabsolute60149.forcedOnLevel
-      version: 1
-    - component: main
-      capability: legendabsolute60149.effectsSetCommand
       version: 1
     - component: main
       capability: legendabsolute60149.mirrorGroupFunction

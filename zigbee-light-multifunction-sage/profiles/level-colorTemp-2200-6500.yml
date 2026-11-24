@@ -477,14 +477,23 @@ deviceConfig:
       capability: switchLevel
       version: 1
     - component: main
-      capability: legendabsolute60149.levelSteps
-      version: 1
-    - component: main
       capability: colorTemperature
       version: 1
       values:
         - key: "colorTemperature.value"
           range: [ 2200, 6500 ]
+    - component: main
+      capability: legendabsolute60149.circadian
+      version: 1
+    - component: main
+      capability: watchangel42614.circadianRange
+      version: 1
+    - component: main
+      capability: legendabsolute60149.effectsSetCommand
+      version: 1
+    - component: main
+      capability: legendabsolute60149.levelSteps
+      version: 1
     - component: main
       capability: legendabsolute60149.colorTemperatureSteps
       version: 1
@@ -502,15 +511,6 @@ deviceConfig:
       version: 1
     - component: main
       capability: legendabsolute60149.forcedOnLevel
-      version: 1
-    - component: main
-      capability: legendabsolute60149.circadian
-      version: 1
-    - component: main
-      capability: watchangel42614.circadianRange
-      version: 1
-    - component: main
-      capability: legendabsolute60149.effectsSetCommand
       version: 1
     - component: main
       capability: legendabsolute60149.mirrorGroupFunction
