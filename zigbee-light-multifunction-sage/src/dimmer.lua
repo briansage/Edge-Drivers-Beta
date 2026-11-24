@@ -1574,7 +1574,7 @@ end
 
 -- Pauses circadian until the light next turns off; the control shows Inactive meanwhile.
 function driver_handler.circadian_end_session(driver, device)
-  device:set_field("circadian_session", circadian_session.on_color_set(), {persist = true})
+  device:set_field("circadian_session", circadian_session.on_color_set(device:get_field("circadian_session"), circadian[device] == "Active"), {persist = true})
   circadian_stop_timer(device)
   if circadian[device] == "Active"
     and device:get_latest_state("main", circadian_Light.ID, circadian_Light.circadian.NAME) == "Active" then
@@ -1818,6 +1818,7 @@ function driver_handler.on_handler (driver, device, command, group)
     -- circadian is color only: start it after the normal turn-on, unless a color effect owns the color
     if circadian[device] == "Active" and device:get_field("colorChanging") ~= "Active" then
       circadian_stop_timer(device)
+      circadian_arm(device) -- a turn-on ends a pause: show Active again
       driver_handler.circadian_handler(driver, device)
     end
   end

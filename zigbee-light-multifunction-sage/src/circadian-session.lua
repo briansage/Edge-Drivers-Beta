@@ -8,7 +8,8 @@ local circadian_session = {}
 
 function circadian_session.on_off() return "armed" end
 function circadian_session.on_start() return "running" end
-function circadian_session.on_color_set() return "ended" end
+-- a color set pauses circadian only while it is Active; otherwise the state is unchanged
+function circadian_session.on_color_set(state, active) return active and "ended" or state end
 
 -- The bulb reported on. Returns the new state and whether to start circadian.
 function circadian_session.on_report_on(state, can_run)

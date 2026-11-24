@@ -7,12 +7,12 @@ local state, start = s.on_report_on(s.on_off(), true)
 assert(start == true and state == "running", "paddle turn-on starts circadian")
 
 -- color set while off: the color handler turns the light on; its on report must not start circadian
-state, start = s.on_report_on(s.on_color_set(), true)
+state, start = s.on_report_on(s.on_color_set("armed", true), true)
 assert(start == false and state == "ended", "color set while off is not overridden")
 
 -- routine on + color: on_handler starts, color ends, the late on report must not restart
 assert(s.on_start() == "running", "on_handler starts circadian")
-state, start = s.on_report_on(s.on_color_set(), true)
+state, start = s.on_report_on(s.on_color_set("armed", true), true)
 assert(start == false and state == "ended", "routine on + color keeps the color")
 
 -- periodic on report while running does not restart
@@ -32,7 +32,9 @@ assert(s.may_resume("ended") == false, "a color change survives a restart")
 assert(s.may_resume("armed") == false, "an off light does not resume")
 
 -- a color change paused circadian: the toggle shows Inactive until the light turns off
-assert(s.paused(s.on_color_set()) == true, "a color change pauses")
+assert(s.paused(s.on_color_set("armed", true)) == true, "a color change pauses")
+-- circadian off: a color set does not pause it, so a restart never turns circadian on
+assert(s.on_color_set("armed", false) == "armed" and s.on_color_set("running", false) == "running", "no pause when circadian is off")
 assert(s.paused("running") == false and s.paused("armed") == false
   and s.paused("idle") == false and s.paused(nil) == false, "only a color change pauses")
 print("ok")
