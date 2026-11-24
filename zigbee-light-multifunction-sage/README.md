@@ -8,6 +8,11 @@ version 6. Supported devices are listed in [fingerprints.yml](fingerprints.yml).
 
 ### 2026-11-24
 
+- **Circadian Lighting shows a pause.** Setting a color pauses circadian, and the control
+  now flips to Inactive to show it. Turning the light off flips it back to Active, ready
+  for the next turn-on. Tapping Active while paused resumes circadian right away. If you
+  turn it off yourself, it stays off.
+
 - **Color Temperature Min and Max always limit color.** The "Use ColorTemp Min and Max as
   limits" setting is gone; every light had it on. The two settings are renamed **Color
   Temperature Min (K)** and **Color Temperature Max (K)**.

@@ -195,6 +195,11 @@ function driver_handler.do_init (self, device)
     circadian_Running[device] = "stopped"
     device:set_field("circadian_Running[device]", circadian_Running[device], {persist = false})
   else
+    -- a color change paused circadian: the control shows Inactive, but the light still uses circadian
+    -- shortcut: an effect that turns circadian off during a pause, then a restart before the light turns off, brings circadian back; track deliberate offs if that shows up
+    if cap_status == "Inactive" and circadian_session.paused(device:get_field("circadian_session")) then
+      cap_status = "Active"
+    end
     device:set_field("circadian[device]", cap_status, {persist = false})
     circadian[device] = device:get_field("circadian[device]")
     if circadian[device] == "Active" and device:get_latest_state("main", capabilities.switch.ID, capabilities.switch.switch.NAME) == "on" then
@@ -687,7 +692,7 @@ function driver_handler.color_Changing_handler(driver, device, command)
       device:set_field("progOff[device]", progOff[device], {persist = false})
       device:emit_event(prog_Off.progOff("Inactive"))
     end
-    -- a color effect owns the color: end circadian until the next turn-on, keep the control Active
+    -- a color effect owns the color: pause circadian until the light turns off
     driver_handler.circadian_end_session(driver, device)
     if device:get_field("random_state") == "Active" then
       device:emit_event(random_On_Off.randomOnOff("Inactive"))
@@ -1457,7 +1462,8 @@ end
 ----------- circadian_Light_handler -----------
 
 function driver_handler.circadian_Light_handler(driver, device, command)
-  if command.args.value == device:get_field("circadian[device]") then return end
+  local paused = command.args.value == "Active" and circadian_session.paused(device:get_field("circadian_session"))
+  if command.args.value == device:get_field("circadian[device]") and not paused then return end
   if device.preferences.logDebugPrint == true then
     print("Circadian Value", command.args.value)
   end
@@ -1481,6 +1487,8 @@ function driver_handler.circadian_Light_handler(driver, device, command)
     end
     circadian[device] = "Active"
     device:set_field("circadian[device]", circadian[device], {persist = false})
+    -- resuming a pause: an off light starts circadian at its next turn-on
+    if paused then device:set_field("circadian_session", circadian_session.on_off(), {persist = true}) end
     -----cancel progressive ON & OFF color Changing and Random On-Off
     if progOn[device] == "Active" then
       progOn[device] = "Inactive"
@@ -1554,9 +1562,7 @@ function driver_handler.circadian_handler(self, device)
   device:set_field("timer_circadian", timer)
 end
 
--- Ends circadian until the light next turns on; the circadian control stays Active.
-function driver_handler.circadian_end_session(driver, device)
-  device:set_field("circadian_session", circadian_session.on_color_set(), {persist = true})
+local function circadian_stop_timer(device)
   local timer = device:get_field("timer_circadian")
   if timer then
     device.thread:cancel_timer(timer)
@@ -1564,6 +1570,24 @@ function driver_handler.circadian_end_session(driver, device)
   end
   circadian_Running[device] = "stopped"
   device:set_field("circadian_Running[device]", circadian_Running[device], {persist = false})
+end
+
+-- Pauses circadian until the light next turns off; the control shows Inactive meanwhile.
+function driver_handler.circadian_end_session(driver, device)
+  device:set_field("circadian_session", circadian_session.on_color_set(), {persist = true})
+  circadian_stop_timer(device)
+  if circadian[device] == "Active"
+    and device:get_latest_state("main", circadian_Light.ID, circadian_Light.circadian.NAME) == "Active" then
+    device:emit_event(circadian_Light.circadian("Inactive"))
+  end
+end
+
+-- Light off: the next turn-on starts circadian, so a paused control shows Active again.
+local function circadian_arm(device)
+  if circadian_session.paused(device:get_field("circadian_session")) and circadian[device] == "Active" then
+    device:emit_event(circadian_Light.circadian("Active"))
+  end
+  device:set_field("circadian_session", circadian_session.on_off(), {persist = true})
 end
 
 -----------------------------------------------
@@ -1793,7 +1817,7 @@ function driver_handler.on_handler (driver, device, command, group)
     end
     -- circadian is color only: start it after the normal turn-on, unless a color effect owns the color
     if circadian[device] == "Active" and device:get_field("colorChanging") ~= "Active" then
-      driver_handler.circadian_end_session(driver, device)
+      circadian_stop_timer(device)
       driver_handler.circadian_handler(driver, device)
     end
   end
@@ -1802,7 +1826,7 @@ function driver_handler.on_handler (driver, device, command, group)
   ------------ TURN OFF handler -----------
   
 function driver_handler.off_handler (driver, device, command)
-  device:set_field("circadian_session", circadian_session.on_off(), {persist = true})
+  circadian_arm(device)
   print("Turn Off handler >>>>>>>>>>>")
   -- set to no jump the dimming
   dimJump[device] = "no"
@@ -2106,7 +2130,7 @@ function driver_handler.on_off_attr_handler(driver, device, value, zb_rx)
 
    ---deactivate color Continous Change  
   if value.value == false then
-    device:set_field("circadian_session", circadian_session.on_off(), {persist = true})
+    circadian_arm(device)
     if device:supports_capability_by_id(capabilities.colorControl.ID) and device:get_field("colorChanging") == "Active" then
       device:set_field("colorChanging_timer", "stopped", {persist = false})
       local child_device = device:get_child_by_parent_assigned_key("main")

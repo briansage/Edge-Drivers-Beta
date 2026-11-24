@@ -30,4 +30,9 @@ assert(s.may_resume("running") == true, "resume a running session")
 assert(s.may_resume(nil) == true, "devices from before this field resume as before")
 assert(s.may_resume("ended") == false, "a color change survives a restart")
 assert(s.may_resume("armed") == false, "an off light does not resume")
+
+-- a color change paused circadian: the toggle shows Inactive until the light turns off
+assert(s.paused(s.on_color_set()) == true, "a color change pauses")
+assert(s.paused("running") == false and s.paused("armed") == false
+  and s.paused("idle") == false and s.paused(nil) == false, "only a color change pauses")
 print("ok")

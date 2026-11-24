@@ -19,6 +19,9 @@ end
 
 -- Driver restart or a circadian hours change while the light is on. nil covers devices from
 -- before this field existed, which resume as they did before.
+-- a color change paused circadian until the light next turns off
+function circadian_session.paused(state) return state == "ended" end
+
 function circadian_session.may_resume(state)
   return state == "running" or state == nil
 end
