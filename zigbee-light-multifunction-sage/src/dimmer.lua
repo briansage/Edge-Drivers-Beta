@@ -265,7 +265,7 @@ function driver_handler.do_init (self, device)
     if cap_status == "Active" then
       cap_status = "Inactive"
       device:emit_event(color_Changing.colorChanging("Inactive"))
-      if circadian[device] == "Active" and circadian_session.paused(device:get_field("circadian_session"))
+      if circadian[device] == "Active" and circadian_session.held_by_effect(device:get_field("circadian_session"))
         and device:get_latest_state("main", capabilities.switch.ID, capabilities.switch.switch.NAME) == "on" then
         device:emit_event(circadian_Light.circadian("Active"))
         device:set_field("circadian_session", circadian_session.on_start(), {persist = true}) -- restarted below
