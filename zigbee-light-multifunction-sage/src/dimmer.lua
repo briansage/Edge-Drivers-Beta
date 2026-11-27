@@ -261,7 +261,7 @@ function driver_handler.do_init (self, device)
 
     --"colorChanging"
     cap_status = device:get_latest_state("main", color_Changing.ID, color_Changing.colorChanging.NAME)
-    -- a driver restart ends a colour effect, so rebooting the hub clears one stuck on
+    -- a driver restart ends a color effect, so rebooting the hub clears one stuck on
     if cap_status == "Active" then
       cap_status = "Inactive"
       device:emit_event(color_Changing.colorChanging("Inactive"))
