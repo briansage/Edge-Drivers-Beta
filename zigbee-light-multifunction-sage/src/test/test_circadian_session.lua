@@ -37,4 +37,10 @@ assert(s.paused(s.on_color_set("armed", true)) == true, "a color change pauses")
 assert(s.on_color_set("armed", false) == "armed" and s.on_color_set("running", false) == "running", "no pause when circadian is off")
 assert(s.paused("running") == false and s.paused("armed") == false
   and s.paused("idle") == false and s.paused(nil) == false, "only a color change pauses")
+
+-- a restart ends an effect: hand back to circadian if the effect held it, including a light turned off and on mid-effect
+assert(s.held_by_effect(s.on_color_set("armed", true)) == true, "an effect that paused circadian")
+assert(s.held_by_effect(s.on_report_on(s.on_off(), false)) == true, "light turned off and on during the effect")
+assert(s.held_by_effect("running") == false and s.held_by_effect("armed") == false
+  and s.held_by_effect(nil) == false, "nothing else gets the handoff")
 print("ok")

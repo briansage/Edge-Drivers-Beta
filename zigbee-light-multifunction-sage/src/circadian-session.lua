@@ -23,6 +23,9 @@ end
 -- a color change paused circadian until the light next turns off
 function circadian_session.paused(state) return state == "ended" end
 
+-- a color effect held circadian: paused it, or owned the color when the light came back on
+function circadian_session.held_by_effect(state) return state == "ended" or state == "idle" end
+
 function circadian_session.may_resume(state)
   return state == "running" or state == nil
 end

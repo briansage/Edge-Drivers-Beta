@@ -261,6 +261,16 @@ function driver_handler.do_init (self, device)
 
     --"colorChanging"
     cap_status = device:get_latest_state("main", color_Changing.ID, color_Changing.colorChanging.NAME)
+    -- a driver restart ends a color effect, so rebooting the hub clears one stuck on
+    if cap_status == "Active" then
+      cap_status = "Inactive"
+      device:emit_event(color_Changing.colorChanging("Inactive"))
+      if circadian[device] == "Active" and circadian_session.held_by_effect(device:get_field("circadian_session"))
+        and device:get_latest_state("main", capabilities.switch.ID, capabilities.switch.switch.NAME) == "on" then
+        device:emit_event(circadian_Light.circadian("Active"))
+        device:set_field("circadian_session", circadian_session.on_start(), {persist = true}) -- restarted below
+      end
+    end
     if cap_status == nil then
       device:emit_event(color_Changing.colorChanging("Inactive"))
       device:set_field("colorChanging", "Inactive", {persist = false})
@@ -701,8 +711,15 @@ function driver_handler.color_Changing_handler(driver, device, command)
     end
 
   elseif colorChanging == "Inactive" then
+    -- ending an effect that held circadian hands the light back to it; a manual color set (no effect) stays put
+    local was_effect = device:get_field("colorChanging") == "Active"
     device:set_field("colorChanging", colorChanging, {persist = false})
     device:emit_event(color_Changing.colorChanging("Inactive"))
+    if was_effect and circadian[device] == "Active" and circadian_session.held_by_effect(device:get_field("circadian_session"))
+      and device:get_latest_state("main", capabilities.switch.ID, capabilities.switch.switch.NAME) == "on" then
+      device:emit_event(circadian_Light.circadian("Active"))
+      driver_handler.circadian_handler(driver, device)
+    end
   end
 
 end
