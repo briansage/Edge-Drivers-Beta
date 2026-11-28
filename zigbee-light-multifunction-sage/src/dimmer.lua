@@ -754,7 +754,8 @@ local function emit_change_color_event(driver, device, newHue, newSaturation)
   --print("ZLL device >>>>>>>",device:get_field("zll_xy"))
   if device:get_field("zll_xy") == "no" then
     --print("ZLL device No >>>>>>>",device:get_field("zll_xy"))
-    device:send_to_component("main", zcl_clusters.ColorControl.server.commands.MoveToHueAndSaturation(device, newHue, newSaturation, 0x0000))    
+    -- Saturation steps by 0.5 in some effects; the Uint8 field needs an integer.
+    device:send_to_component("main", zcl_clusters.ColorControl.server.commands.MoveToHueAndSaturation(device, newHue, math.floor(newSaturation + 0.5), 0x0000))
   else
     --print("<<<< convert to x,y >>>>")
     local hue = math.floor(newHue / 0xFE * 100) > 99 and 99 or math.floor(newHue / 0xFE * 100)
